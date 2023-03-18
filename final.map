@@ -1,0 +1,135 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+flash            0x0000000008000000 0x0000000000100000 xr
+sram1            0x0000000020000000 0x0000000000018000 xw
+sram2            0x0000000010000000 0x0000000000008000 xw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD startup_file.o
+LOAD main.o
+LOAD pripherique_config.o
+                0x0000000010008000                _star_stack = (LENGTH (sram2) + ORIGIN (sram2))
+                0x0000000020000164                _sdata = ADDR (.data)
+                0x0000000008000180                _ld_sdata = LOADADDR (.data)
+                0x000000002000016c                _edata = (SIZEOF (.data) + _sdata)
+                0x0000000020000000                _stext = ADDR (.text)
+                0x0000000008000000                _ld_stext = LOADADDR (.text)
+                0x0000000020000164                _etext = (SIZEOF (.text) + ADDR (.text))
+
+.text           0x0000000020000000      0x164 load address 0x0000000008000000
+ *(.text)
+ .text          0x0000000020000000       0xd0 startup_file.o
+                0x0000000020000000                Reset_handler
+                0x00000000200000c8                default_handler
+ .text          0x00000000200000d0       0x30 main.o
+                0x00000000200000d0                main
+ .text          0x0000000020000100       0x64 pripherique_config.o
+                0x0000000020000100                initialisation
+                0x000000002000012c                allume
+                0x0000000020000148                eteint
+
+.glue_7         0x0000000020000164        0x0 load address 0x0000000008000164
+ .glue_7        0x0000000020000164        0x0 linker stubs
+
+.glue_7t        0x0000000020000164        0x0 load address 0x0000000008000164
+ .glue_7t       0x0000000020000164        0x0 linker stubs
+
+.vfp11_veneer   0x0000000020000164        0x0 load address 0x0000000008000164
+ .vfp11_veneer  0x0000000020000164        0x0 linker stubs
+
+.v4_bx          0x0000000020000164        0x0 load address 0x0000000008000164
+ .v4_bx         0x0000000020000164        0x0 linker stubs
+
+.iplt           0x0000000020000164        0x0 load address 0x0000000008000164
+ .iplt          0x0000000020000164        0x0 startup_file.o
+
+.rodat          0x0000000008000164       0x1c
+ *(.rodata)
+ .rodata        0x0000000008000164       0x1c pripherique_config.o
+                0x0000000008000164                RCC_EN
+                0x0000000008000168                RCC_RST
+                0x000000000800016c                RCC_CR
+                0x0000000008000170                GPIO_PUPD
+                0x0000000008000174                GPIO_MODER
+                0x0000000008000178                GPIO_BSRR
+                0x000000000800017c                GPIO_ODR
+
+.rel.dyn        0x0000000008000180        0x0
+ .rel.iplt      0x0000000008000180        0x0 startup_file.o
+
+.data           0x0000000020000164        0x8 load address 0x0000000008000180
+ *(.data)
+ .data          0x0000000020000164        0x0 startup_file.o
+ .data          0x0000000020000164        0x8 main.o
+                0x0000000020000164                a
+                0x0000000020000168                b
+ .data          0x000000002000016c        0x0 pripherique_config.o
+
+.igot.plt       0x000000002000016c        0x0 load address 0x0000000008000188
+ .igot.plt      0x000000002000016c        0x0 startup_file.o
+
+.bss            0x000000002000016c        0x0 load address 0x0000000008000188
+                0x000000002000016c                _sbss = .
+ *(.bss)
+ .bss           0x000000002000016c        0x0 startup_file.o
+ .bss           0x000000002000016c        0x0 main.o
+ .bss           0x000000002000016c        0x0 pripherique_config.o
+ *(COMMON)
+                0x000000002000016c                _ebss = .
+OUTPUT(test.elf elf32-littlearm)
+LOAD linker stubs
+
+.debug_info     0x0000000000000000      0x3dd
+ .debug_info    0x0000000000000000      0x1e7 startup_file.o
+ .debug_info    0x00000000000001e7       0xba main.o
+ .debug_info    0x00000000000002a1      0x13c pripherique_config.o
+
+.debug_abbrev   0x0000000000000000      0x1ca
+ .debug_abbrev  0x0000000000000000       0xde startup_file.o
+ .debug_abbrev  0x00000000000000de       0x71 main.o
+ .debug_abbrev  0x000000000000014f       0x7b pripherique_config.o
+
+.debug_aranges  0x0000000000000000       0x60
+ .debug_aranges
+                0x0000000000000000       0x20 startup_file.o
+ .debug_aranges
+                0x0000000000000020       0x20 main.o
+ .debug_aranges
+                0x0000000000000040       0x20 pripherique_config.o
+
+.debug_line     0x0000000000000000      0x1f6
+ .debug_line    0x0000000000000000       0xf1 startup_file.o
+ .debug_line    0x00000000000000f1       0x59 main.o
+ .debug_line    0x000000000000014a       0xac pripherique_config.o
+
+.debug_str      0x0000000000000000      0x236
+ .debug_str     0x0000000000000000      0x1bf startup_file.o
+                                        0x206 (size before relaxing)
+ .debug_str     0x00000000000001bf        0x7 main.o
+                                        0x125 (size before relaxing)
+ .debug_str     0x00000000000001c6       0x70 pripherique_config.o
+                                        0x192 (size before relaxing)
+
+.comment        0x0000000000000000       0x33
+ .comment       0x0000000000000000       0x33 startup_file.o
+                                         0x34 (size before relaxing)
+ .comment       0x0000000000000033       0x34 main.o
+ .comment       0x0000000000000033       0x34 pripherique_config.o
+
+.ARM.attributes
+                0x0000000000000000       0x34
+ .ARM.attributes
+                0x0000000000000000       0x34 startup_file.o
+ .ARM.attributes
+                0x0000000000000034       0x34 main.o
+ .ARM.attributes
+                0x0000000000000068       0x34 pripherique_config.o
+
+.debug_frame    0x0000000000000000       0xec
+ .debug_frame   0x0000000000000000       0x4c startup_file.o
+ .debug_frame   0x000000000000004c       0x30 main.o
+ .debug_frame   0x000000000000007c       0x70 pripherique_config.o
