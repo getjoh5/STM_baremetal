@@ -1,6 +1,4 @@
-ENTRY(Reset_handler)
-
-_star_stack = LENGTH(sram2)+ORIGIN(sram2);
+_stack =  ORIGIN(sram2) + LENGTH(sram2) ;
 
 /*region relocation */
 
@@ -12,7 +10,7 @@ MEMORY
     
 }
 
-
+ENTRY(_start)
 
 _sdata = ADDR(.data);
 _ld_sdata = LOADADDR(.data);
@@ -26,20 +24,20 @@ _etext = SIZEOF(.text) + ADDR(.text);
 SECTIONS{
     .text : {
         *(.text)
-    } > sram1 AT >flash
+    } > sram1 
     .rodat : {
         *(.rodata)
-    } > flash
+    } > sram1
     .data : {
         
         *(.data)
         
-    } > sram1 AT >flash
+    } > sram1 
     .bss : {
         _sbss = . ; 
         *(.bss)
         *(COMMON)
         _ebss = . ;
     } > sram1
-   
+      
 }

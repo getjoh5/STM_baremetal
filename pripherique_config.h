@@ -6,8 +6,4 @@ void allume();
 void eteint();
 
 
-
-
-
-
 #endif

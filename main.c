@@ -3,17 +3,16 @@
 //travail sur la gestion des periphérique entré sortie
 //gestion "includedes por usb 
 #include"pripherique_config.h"
-int a=12;
-int b=15;
+
 int main()
 {
     //uint32_t j;
     initialisation();
     while(1){
         allume();
-        for(int j=0;j<100000;j++)asm volatile("nop");
+        for(int j=0;j<1000000;j++);
         eteint();
-        //for(int j=0;j<100000;j++)asm volatile("nop");
+        for(int j=0;j<1000000;j++);
     }
    return 0; 
 }

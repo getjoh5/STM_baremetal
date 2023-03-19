@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "pripherique_config.h": "c"
+    }
+}

@@ -208,7 +208,7 @@ void Reset_handler()
     //JE COPIE LES ELEMENT DU .DATA vers la sram1
     uint32_t Size_data=(uint32_t)&_edata-(uint32_t)&_sdata;
     uint32_t Size_text=(uint32_t)&_etext-(uint32_t)&_stext;
-    uint32_t Size_bss=(uint32_t)&_ebss-(uint32_t)&_sbss;
+    //uint32_t Size_bss=(uint32_t)&_ebss-(uint32_t)&_sbss;
     uint32_t i=0;
     //copie txt de la flash à la ram
     i=0;
@@ -228,15 +228,11 @@ void Reset_handler()
         i++;
     }
     //.bss à 0
-    i=0;
-    while (i<Size_bss)
-    {
-        uint8_t *t=(uint8_t *)&_sbss;
 
-        t[i]=0;
-        i++;
+    for(uint8_t *dst=(uint8_t *)&_sbss;dst<(uint8_t *)&_ebss;dst++){
+        *dst=0;
     }
-    main();
+  
 }
 
 
