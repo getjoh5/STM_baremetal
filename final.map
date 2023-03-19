@@ -14,75 +14,80 @@ LOAD startup_file.o
 LOAD main.o
 LOAD pripherique_config.o
                 0x0000000010008000                _stack = (ORIGIN (sram2) + LENGTH (sram2))
-                0x0000000020000104                _sdata = ADDR (.data)
-                0x0000000020000104                _ld_sdata = LOADADDR (.data)
-                0x0000000020000104                _edata = (SIZEOF (.data) + _sdata)
+                0x00000000200001a8                _sdata = ADDR (.data)
+                0x00000000200001a8                _ld_sdata = LOADADDR (.data)
+                0x00000000200001a8                _edata = (SIZEOF (.data) + _sdata)
                 0x0000000020000000                _stext = ADDR (.text)
                 0x0000000020000000                _ld_stext = LOADADDR (.text)
-                0x00000000200000e8                _etext = (SIZEOF (.text) + ADDR (.text))
+                0x000000002000017c                _etext = (SIZEOF (.text) + ADDR (.text))
 
-.text           0x0000000020000000       0xe8
+.text           0x0000000020000000      0x17c
  *(.text)
  .text          0x0000000020000000       0x18 bootloader.o
                 0x0000000020000000                _start
  .text          0x0000000020000018       0x74 startup_file.o
                 0x0000000020000018                Reset_handler
                 0x0000000020000088                default_handler
- .text          0x000000002000008c       0x20 main.o
+ .text          0x000000002000008c       0x40 main.o
                 0x000000002000008c                main
- .text          0x00000000200000ac       0x3c pripherique_config.o
-                0x00000000200000ac                initialisation
-                0x00000000200000cc                allume
-                0x00000000200000da                eteint
+ .text          0x00000000200000cc       0xb0 pripherique_config.o
+                0x00000000200000cc                initialisation
+                0x00000000200000f8                led
+                0x000000002000015e                allume
+                0x000000002000016c                eteint
 
-.glue_7         0x00000000200000e8        0x0
- .glue_7        0x00000000200000e8        0x0 linker stubs
+.glue_7         0x000000002000017c        0x0
+ .glue_7        0x000000002000017c        0x0 linker stubs
 
-.glue_7t        0x00000000200000e8        0x0
- .glue_7t       0x00000000200000e8        0x0 linker stubs
+.glue_7t        0x000000002000017c        0x0
+ .glue_7t       0x000000002000017c        0x0 linker stubs
 
-.vfp11_veneer   0x00000000200000e8        0x0
- .vfp11_veneer  0x00000000200000e8        0x0 linker stubs
+.vfp11_veneer   0x000000002000017c        0x0
+ .vfp11_veneer  0x000000002000017c        0x0 linker stubs
 
-.v4_bx          0x00000000200000e8        0x0
- .v4_bx         0x00000000200000e8        0x0 linker stubs
+.v4_bx          0x000000002000017c        0x0
+ .v4_bx         0x000000002000017c        0x0 linker stubs
 
-.iplt           0x00000000200000e8        0x0
- .iplt          0x00000000200000e8        0x0 bootloader.o
+.iplt           0x000000002000017c        0x0
+ .iplt          0x000000002000017c        0x0 bootloader.o
 
-.rodat          0x00000000200000e8       0x1c
+.rodat          0x000000002000017c       0x2c
  *(.rodata)
- .rodata        0x00000000200000e8       0x1c pripherique_config.o
-                0x00000000200000e8                GPIO_ODR
-                0x00000000200000ec                GPIO_BSRR
-                0x00000000200000f0                GPIO_MODER
-                0x00000000200000f4                GPIO_PUPD
-                0x00000000200000f8                RCC_CR
-                0x00000000200000fc                RCC_RST
-                0x0000000020000100                RCC_EN
+ .rodata        0x000000002000017c       0x2c pripherique_config.o
+                0x000000002000017c                GPIO_ODR_BY
+                0x0000000020000180                GPIO_ODR
+                0x0000000020000184                GPIO_OTYPE_BY
+                0x0000000020000188                GPIO_BSRR_BY
+                0x000000002000018c                GPIO_BSRR
+                0x0000000020000190                GPIO_MODER_BY
+                0x0000000020000194                GPIO_MODER_GREEN
+                0x0000000020000198                GPIO_PUPD_BY
+                0x000000002000019c                RCC_CR
+                0x00000000200001a0                RCC_RST
+                0x00000000200001a4                RCC_EN
 
-.rel.dyn        0x0000000020000104        0x0
- .rel.iplt      0x0000000020000104        0x0 bootloader.o
+.rel.dyn        0x00000000200001a8        0x0
+ .rel.iplt      0x00000000200001a8        0x0 bootloader.o
 
-.data           0x0000000020000104        0x0
+.data           0x00000000200001a8        0x0
  *(.data)
- .data          0x0000000020000104        0x0 bootloader.o
- .data          0x0000000020000104        0x0 startup_file.o
- .data          0x0000000020000104        0x0 main.o
- .data          0x0000000020000104        0x0 pripherique_config.o
+ .data          0x00000000200001a8        0x0 bootloader.o
+ .data          0x00000000200001a8        0x0 startup_file.o
+ .data          0x00000000200001a8        0x0 main.o
+ .data          0x00000000200001a8        0x0 pripherique_config.o
 
-.igot.plt       0x0000000020000104        0x0
- .igot.plt      0x0000000020000104        0x0 bootloader.o
+.igot.plt       0x00000000200001a8        0x0
+ .igot.plt      0x00000000200001a8        0x0 bootloader.o
 
-.bss            0x0000000020000104        0x0
-                0x0000000020000104                _sbss = .
+.bss            0x00000000200001a8        0x0
+                0x00000000200001a8                _sbss = .
  *(.bss)
- .bss           0x0000000020000104        0x0 bootloader.o
- .bss           0x0000000020000104        0x0 startup_file.o
- .bss           0x0000000020000104        0x0 main.o
- .bss           0x0000000020000104        0x0 pripherique_config.o
+ .bss           0x00000000200001a8        0x0 bootloader.o
+ .bss           0x00000000200001a8        0x0 startup_file.o
+ .bss           0x00000000200001a8        0x0 main.o
+ .bss           0x00000000200001a8        0x0 pripherique_config.o
  *(COMMON)
-                0x0000000020000104                _ebss = .
+                0x00000000200001a8                _ebss = .
 OUTPUT(test.elf elf32-littlearm)
 LOAD linker stubs
 
@@ -103,23 +108,23 @@ LOAD linker stubs
  .comment       0x0000000000000049       0x4a main.o
  .comment       0x0000000000000049       0x4a pripherique_config.o
 
-.debug_line     0x0000000000000000      0x3ea
+.debug_line     0x0000000000000000      0x49a
  .debug_line    0x0000000000000000       0x42 bootloader.o
- .debug_line    0x0000000000000042      0x1b5 startup_file.o
- .debug_line    0x00000000000001f7       0xb3 main.o
- .debug_line    0x00000000000002aa      0x140 pripherique_config.o
+ .debug_line    0x0000000000000042      0x1b3 startup_file.o
+ .debug_line    0x00000000000001f5       0xf0 main.o
+ .debug_line    0x00000000000002e5      0x1b5 pripherique_config.o
 
-.debug_info     0x0000000000000000      0x454
+.debug_info     0x0000000000000000      0x575
  .debug_info    0x0000000000000000       0x26 bootloader.o
  .debug_info    0x0000000000000026      0x1e8 startup_file.o
- .debug_info    0x000000000000020e       0xfe main.o
- .debug_info    0x000000000000030c      0x148 pripherique_config.o
+ .debug_info    0x000000000000020e      0x183 main.o
+ .debug_info    0x0000000000000391      0x1e4 pripherique_config.o
 
-.debug_abbrev   0x0000000000000000      0x1e9
+.debug_abbrev   0x0000000000000000      0x289
  .debug_abbrev  0x0000000000000000       0x14 bootloader.o
  .debug_abbrev  0x0000000000000014       0xd9 startup_file.o
- .debug_abbrev  0x00000000000000ed       0x81 main.o
- .debug_abbrev  0x000000000000016e       0x7b pripherique_config.o
+ .debug_abbrev  0x00000000000000ed       0xd6 main.o
+ .debug_abbrev  0x00000000000001c3       0xc6 pripherique_config.o
 
 .debug_aranges  0x0000000000000000       0x80
  .debug_aranges
@@ -131,23 +136,23 @@ LOAD linker stubs
  .debug_aranges
                 0x0000000000000060       0x20 pripherique_config.o
 
-.debug_str      0x0000000000000000      0x252
+.debug_str      0x0000000000000000      0x2b2
  .debug_str     0x0000000000000000       0x3f bootloader.o
  .debug_str     0x000000000000003f      0x197 startup_file.o
                                         0x213 (size before relaxing)
- .debug_str     0x00000000000001d6       0x29 main.o
-                                        0x148 (size before relaxing)
- .debug_str     0x00000000000001ff       0x53 pripherique_config.o
-                                        0x1a3 (size before relaxing)
+ .debug_str     0x00000000000001d6       0x4b main.o
+                                        0x16a (size before relaxing)
+ .debug_str     0x0000000000000221       0x91 pripherique_config.o
+                                        0x203 (size before relaxing)
 
-.debug_loc      0x0000000000000000      0x13b
+.debug_loc      0x0000000000000000      0x190
  .debug_loc     0x0000000000000000       0x91 startup_file.o
- .debug_loc     0x0000000000000091       0xaa main.o
+ .debug_loc     0x0000000000000091       0xff main.o
 
-.debug_frame    0x0000000000000000       0xa4
+.debug_frame    0x0000000000000000       0xb8
  .debug_frame   0x0000000000000000       0x3c startup_file.o
- .debug_frame   0x000000000000003c       0x28 main.o
- .debug_frame   0x0000000000000064       0x40 pripherique_config.o
+ .debug_frame   0x000000000000003c       0x2c main.o
+ .debug_frame   0x0000000000000068       0x50 pripherique_config.o
 
-.debug_ranges   0x0000000000000000       0x30
- .debug_ranges  0x0000000000000000       0x30 main.o
+.debug_ranges   0x0000000000000000       0x48
+ .debug_ranges  0x0000000000000000       0x48 main.o
