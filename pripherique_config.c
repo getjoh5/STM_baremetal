@@ -1,8 +1,10 @@
 #include <stdint.h>
 #include "pripherique_config.h"
-// #include "stm32l475xx.h"
+
 
 /*configuration du RCC*/
+
+ 
 
 volatile uint32_t *const RCC_EN = (uint32_t *)0x4002104c;
 volatile uint32_t *const RCC_RST = (uint32_t *)0x4002102c;
@@ -65,3 +67,5 @@ void eteint()
 {
     *GPIO_BSRR = (1 << 30);
 }
+
+

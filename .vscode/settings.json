@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.ejs": "html",
-        "pripherique_config.h": "c"
+        "pripherique_config.h": "c",
+        "button_configuration.h": "c",
+        "startup_filel.h": "c"
     }
 }

@@ -13,81 +13,191 @@ LOAD bootloader.o
 LOAD startup_file.o
 LOAD main.o
 LOAD pripherique_config.o
+LOAD button_configuration.o
                 0x0000000010008000                _stack = (ORIGIN (sram2) + LENGTH (sram2))
-                0x00000000200001a8                _sdata = ADDR (.data)
-                0x00000000200001a8                _ld_sdata = LOADADDR (.data)
-                0x00000000200001a8                _edata = (SIZEOF (.data) + _sdata)
-                0x0000000020000000                _stext = ADDR (.text)
-                0x0000000020000000                _ld_stext = LOADADDR (.text)
-                0x000000002000017c                _etext = (SIZEOF (.text) + ADDR (.text))
+                0x0000000020000000                _sdata = ADDR (.data)
+                0x0000000020000000                _ld_sdata = LOADADDR (.data)
+                0x0000000020000000                _edata = (SIZEOF (.data) + _sdata)
+                0x0000000008000000                _stext = ADDR (.text)
+                0x0000000008000000                _ld_stext = LOADADDR (.text)
+                0x00000000080004c4                _etext = (SIZEOF (.text) + ADDR (.text))
 
-.text           0x0000000020000000      0x17c
+.text           0x0000000008000000      0x4c4
+ *(.isr_vector)
+ .isr_vector    0x0000000008000000      0x180 startup_file.o
+                0x0000000008000000                vectors
  *(.text)
- .text          0x0000000020000000       0x18 bootloader.o
-                0x0000000020000000                _start
- .text          0x0000000020000018       0x74 startup_file.o
-                0x0000000020000018                Reset_handler
-                0x0000000020000088                default_handler
- .text          0x000000002000008c       0x40 main.o
-                0x000000002000008c                main
- .text          0x00000000200000cc       0xb0 pripherique_config.o
-                0x00000000200000cc                initialisation
-                0x00000000200000f8                led
-                0x000000002000015e                allume
-                0x000000002000016c                eteint
+ .text          0x0000000008000180       0x10 bootloader.o
+                0x0000000008000180                _start
+ .text          0x0000000008000190      0x1d4 startup_file.o
+                0x0000000008000190                FPU_Handler
+                0x0000000008000194                RNG_Handler
+                0x0000000008000198                TSC_Handler
+                0x000000000800019c                SWPMI1_Handler
+                0x00000000080001a0                SAI2_Handler
+                0x00000000080001a4                SAI1_Handler
+                0x00000000080001a8                I2C3_ER_Handler
+                0x00000000080001ac                I2C3_EV_Handler
+                0x00000000080001b0                QUADSPI_Handler
+                0x00000000080001b4                LPUART1_Handler
+                0x00000000080001b8                DMA2_Channel7_Handler
+                0x00000000080001bc                DMA2_Channel6_Handler
+                0x00000000080001c0                OTG_FS_Handler
+                0x00000000080001c4                LPTIM2_Handler
+                0x00000000080001c8                LPTIM1_Handler
+                0x00000000080001cc                COMP_Handler
+                0x00000000080001d0                DFSDM1_FLT2_Handler
+                0x00000000080001d4                DFSDM1_FLT1_Handler
+                0x00000000080001d8                DFSDM1_FLT0_Handler
+                0x00000000080001dc                DMA2_Channel5_Handler
+                0x00000000080001e0                DMA2_Channel4_Handler
+                0x00000000080001e4                DMA2_Channel3_Handler
+                0x00000000080001e8                DMA2_Channel2_Handler
+                0x00000000080001ec                DMA2_Channel1_Handler
+                0x00000000080001f0                TIM7_Handler
+                0x00000000080001f4                TIM6_DAC_Handler
+                0x00000000080001f8                UART5_Handler
+                0x00000000080001fc                UART4_Handler
+                0x0000000008000200                SPI3_Handler
+                0x0000000008000204                TIM5_Handler
+                0x0000000008000208                SDMMC1_Handler
+                0x000000000800020c                FMC_Handler
+                0x0000000008000210                ADC3_Handler
+                0x0000000008000214                TIM8_CC_Handler
+                0x0000000008000218                TIM8_TRG_COM_Handler
+                0x000000000800021c                TIM8_UP_Handler
+                0x0000000008000220                TIM8_BRK_Handler
+                0x0000000008000224                DFSDM1_FLT3_Handler
+                0x0000000008000228                RTC_Alarm_Handler
+                0x0000000008000230                USART3_Handler
+                0x0000000008000234                USART2_Handler
+                0x0000000008000238                USART1_Handler
+                0x000000000800023c                SPI2_Handler
+                0x0000000008000240                SPI1_Handler
+                0x0000000008000244                I2C2_ER_Handler
+                0x0000000008000248                I2C2_EV_Handler
+                0x000000000800024c                I2C1_ER_Handler
+                0x0000000008000250                I2C1_EV_Handler
+                0x0000000008000254                TIM4_Handler
+                0x0000000008000258                TIM3_Handler
+                0x000000000800025c                TIM2_Handler
+                0x0000000008000260                TIM1_CC_Handler
+                0x0000000008000264                TRG_COM_TIM17_Handler
+                0x0000000008000268                TIM1_UP_TIM16_Handler
+                0x000000000800026c                IM1_BRK_TIM15_Handler
+                0x0000000008000270                EXTI9_5_Handler
+                0x0000000008000274                CAN1_SCE_Handler
+                0x0000000008000278                CAN1_RX1_Handler
+                0x000000000800027c                CAN1_RX0_Handler
+                0x0000000008000280                CAN1_TX_Handler
+                0x0000000008000284                ADC1_2_Handler
+                0x0000000008000288                DMA1_Channel7_Handler
+                0x000000000800028c                DMA1_Channel6_Handler
+                0x0000000008000290                DMA1_Channel5_Handler
+                0x0000000008000294                DMA1_Channel4_Handler
+                0x0000000008000298                DMA1_Channel3_Handler
+                0x000000000800029c                DMA1_Channel2_Handler
+                0x00000000080002a0                DMA1_Channel1_Handler
+                0x00000000080002a4                EXTI4_Handler
+                0x00000000080002a8                EXTI3_Handler
+                0x00000000080002ac                EXTI2_Handler
+                0x00000000080002b0                EXTI1_Handler
+                0x00000000080002b4                EXTI0_Handler
+                0x00000000080002b8                RCC_Handler
+                0x00000000080002bc                FLASH_Handler
+                0x00000000080002c0                RTC_WKUP_Handler
+                0x00000000080002c4                TAMP_STAMP_Handler
+                0x00000000080002c8                PVD_PVM_Handler
+                0x00000000080002cc                WWDG_Handler
+                0x00000000080002d0                SysTick_Handler
+                0x00000000080002d4                PendSV_Handler
+                0x00000000080002d8                SVCall_Handler
+                0x00000000080002dc                UsageFault_Handler
+                0x00000000080002e0                BusFault_Handler
+                0x00000000080002e4                MemoryManagement_Handler
+                0x00000000080002e8                HardFault_Handler
+                0x00000000080002ec                NonMaskableInt_Handler
+                0x00000000080002f0                Reset_handler
+                0x0000000008000360                default_handler
+ .text          0x0000000008000364        0xc main.o
+                0x0000000008000364                main
+ .text          0x0000000008000370       0xb0 pripherique_config.o
+                0x0000000008000370                initialisation
+                0x000000000800039c                led
+                0x0000000008000402                allume
+                0x0000000008000410                eteint
+ .text          0x0000000008000420       0xa4 button_configuration.o
+                0x0000000008000420                int_button
+                0x0000000008000494                EXTI15_10_Handler
 
-.glue_7         0x000000002000017c        0x0
- .glue_7        0x000000002000017c        0x0 linker stubs
+.glue_7         0x00000000080004c4        0x0
+ .glue_7        0x00000000080004c4        0x0 linker stubs
 
-.glue_7t        0x000000002000017c        0x0
- .glue_7t       0x000000002000017c        0x0 linker stubs
+.glue_7t        0x00000000080004c4        0x0
+ .glue_7t       0x00000000080004c4        0x0 linker stubs
 
-.vfp11_veneer   0x000000002000017c        0x0
- .vfp11_veneer  0x000000002000017c        0x0 linker stubs
+.vfp11_veneer   0x00000000080004c4        0x0
+ .vfp11_veneer  0x00000000080004c4        0x0 linker stubs
 
-.v4_bx          0x000000002000017c        0x0
- .v4_bx         0x000000002000017c        0x0 linker stubs
+.v4_bx          0x00000000080004c4        0x0
+ .v4_bx         0x00000000080004c4        0x0 linker stubs
 
-.iplt           0x000000002000017c        0x0
- .iplt          0x000000002000017c        0x0 bootloader.o
+.iplt           0x00000000080004c4        0x0
+ .iplt          0x00000000080004c4        0x0 bootloader.o
 
-.rodat          0x000000002000017c       0x2c
+.rodat          0x00000000080004c4       0x5c
  *(.rodata)
- .rodata        0x000000002000017c       0x2c pripherique_config.o
-                0x000000002000017c                GPIO_ODR_BY
-                0x0000000020000180                GPIO_ODR
-                0x0000000020000184                GPIO_OTYPE_BY
-                0x0000000020000188                GPIO_BSRR_BY
-                0x000000002000018c                GPIO_BSRR
-                0x0000000020000190                GPIO_MODER_BY
-                0x0000000020000194                GPIO_MODER_GREEN
-                0x0000000020000198                GPIO_PUPD_BY
-                0x000000002000019c                RCC_CR
-                0x00000000200001a0                RCC_RST
-                0x00000000200001a4                RCC_EN
+ .rodata        0x00000000080004c4        0x4 startup_file.o
+                0x00000000080004c4                NVIC_ICER
+ .rodata        0x00000000080004c8       0x2c pripherique_config.o
+                0x00000000080004c8                GPIO_ODR_BY
+                0x00000000080004cc                GPIO_ODR
+                0x00000000080004d0                GPIO_OTYPE_BY
+                0x00000000080004d4                GPIO_BSRR_BY
+                0x00000000080004d8                GPIO_BSRR
+                0x00000000080004dc                GPIO_MODER_BY
+                0x00000000080004e0                GPIO_MODER_GREEN
+                0x00000000080004e4                GPIO_PUPD_BY
+                0x00000000080004e8                RCC_CR
+                0x00000000080004ec                RCC_RST
+                0x00000000080004f0                RCC_EN
+ .rodata        0x00000000080004f4       0x2c button_configuration.o
+                0x00000000080004f4                EXTI_NVIC
+                0x00000000080004f8                EXTI_PEN
+                0x00000000080004fc                EXTI_FTSR1
+                0x0000000008000500                EXTI_RTS
+                0x0000000008000504                EXTI_IMR
+                0x0000000008000508                SYSCFG_
+                0x000000000800050c                PUPD_BUT
+                0x0000000008000510                GPIOC_IDR
+                0x0000000008000514                MODER_BUT
+                0x0000000008000518                RCC_APB2_EN
+                0x000000000800051c                RCC_BUT_EN
 
-.rel.dyn        0x00000000200001a8        0x0
- .rel.iplt      0x00000000200001a8        0x0 bootloader.o
+.rel.dyn        0x0000000008000520        0x0
+ .rel.iplt      0x0000000008000520        0x0 bootloader.o
 
-.data           0x00000000200001a8        0x0
+.data           0x0000000020000000        0x0
  *(.data)
- .data          0x00000000200001a8        0x0 bootloader.o
- .data          0x00000000200001a8        0x0 startup_file.o
- .data          0x00000000200001a8        0x0 main.o
- .data          0x00000000200001a8        0x0 pripherique_config.o
+ .data          0x0000000020000000        0x0 bootloader.o
+ .data          0x0000000020000000        0x0 startup_file.o
+ .data          0x0000000020000000        0x0 main.o
+ .data          0x0000000020000000        0x0 pripherique_config.o
+ .data          0x0000000020000000        0x0 button_configuration.o
 
-.igot.plt       0x00000000200001a8        0x0
- .igot.plt      0x00000000200001a8        0x0 bootloader.o
+.igot.plt       0x0000000020000000        0x0
+ .igot.plt      0x0000000020000000        0x0 bootloader.o
 
-.bss            0x00000000200001a8        0x0
-                0x00000000200001a8                _sbss = .
+.bss            0x0000000020000000        0x0
+                0x0000000020000000                _sbss = .
  *(.bss)
- .bss           0x00000000200001a8        0x0 bootloader.o
- .bss           0x00000000200001a8        0x0 startup_file.o
- .bss           0x00000000200001a8        0x0 main.o
- .bss           0x00000000200001a8        0x0 pripherique_config.o
+ .bss           0x0000000020000000        0x0 bootloader.o
+ .bss           0x0000000020000000        0x0 startup_file.o
+ .bss           0x0000000020000000        0x0 main.o
+ .bss           0x0000000020000000        0x0 pripherique_config.o
+ .bss           0x0000000020000000        0x0 button_configuration.o
  *(COMMON)
-                0x00000000200001a8                _ebss = .
+                0x0000000020000000                _ebss = .
 OUTPUT(test.elf elf32-littlearm)
 LOAD linker stubs
 
@@ -101,32 +211,38 @@ LOAD linker stubs
                 0x0000000000000055       0x34 main.o
  .ARM.attributes
                 0x0000000000000089       0x34 pripherique_config.o
+ .ARM.attributes
+                0x00000000000000bd       0x34 button_configuration.o
 
 .comment        0x0000000000000000       0x49
  .comment       0x0000000000000000       0x49 startup_file.o
                                          0x4a (size before relaxing)
  .comment       0x0000000000000049       0x4a main.o
  .comment       0x0000000000000049       0x4a pripherique_config.o
+ .comment       0x0000000000000049       0x4a button_configuration.o
 
-.debug_line     0x0000000000000000      0x49a
- .debug_line    0x0000000000000000       0x42 bootloader.o
- .debug_line    0x0000000000000042      0x1b3 startup_file.o
- .debug_line    0x00000000000001f5       0xf0 main.o
- .debug_line    0x00000000000002e5      0x1b5 pripherique_config.o
+.debug_line     0x0000000000000000     0x151d
+ .debug_line    0x0000000000000000       0x3e bootloader.o
+ .debug_line    0x000000000000003e     0x1067 startup_file.o
+ .debug_line    0x00000000000010a5       0x83 main.o
+ .debug_line    0x0000000000001128      0x1b5 pripherique_config.o
+ .debug_line    0x00000000000012dd      0x240 button_configuration.o
 
-.debug_info     0x0000000000000000      0x575
+.debug_info     0x0000000000000000     0x1bfb
  .debug_info    0x0000000000000000       0x26 bootloader.o
- .debug_info    0x0000000000000026      0x1e8 startup_file.o
- .debug_info    0x000000000000020e      0x183 main.o
- .debug_info    0x0000000000000391      0x1e4 pripherique_config.o
+ .debug_info    0x0000000000000026     0x116a startup_file.o
+ .debug_info    0x0000000000001190       0xb1 main.o
+ .debug_info    0x0000000000001241      0x1f4 pripherique_config.o
+ .debug_info    0x0000000000001435      0x7c6 button_configuration.o
 
-.debug_abbrev   0x0000000000000000      0x289
+.debug_abbrev   0x0000000000000000      0x49a
  .debug_abbrev  0x0000000000000000       0x14 bootloader.o
- .debug_abbrev  0x0000000000000014       0xd9 startup_file.o
- .debug_abbrev  0x00000000000000ed       0xd6 main.o
- .debug_abbrev  0x00000000000001c3       0xc6 pripherique_config.o
+ .debug_abbrev  0x0000000000000014      0x158 startup_file.o
+ .debug_abbrev  0x000000000000016c       0x64 main.o
+ .debug_abbrev  0x00000000000001d0       0xe8 pripherique_config.o
+ .debug_abbrev  0x00000000000002b8      0x1e2 button_configuration.o
 
-.debug_aranges  0x0000000000000000       0x80
+.debug_aranges  0x0000000000000000       0xa0
  .debug_aranges
                 0x0000000000000000       0x20 bootloader.o
  .debug_aranges
@@ -135,24 +251,26 @@ LOAD linker stubs
                 0x0000000000000040       0x20 main.o
  .debug_aranges
                 0x0000000000000060       0x20 pripherique_config.o
+ .debug_aranges
+                0x0000000000000080       0x20 button_configuration.o
 
-.debug_str      0x0000000000000000      0x2b2
+.debug_str      0x0000000000000000      0xeec
  .debug_str     0x0000000000000000       0x3f bootloader.o
- .debug_str     0x000000000000003f      0x197 startup_file.o
-                                        0x213 (size before relaxing)
- .debug_str     0x00000000000001d6       0x4b main.o
-                                        0x16a (size before relaxing)
- .debug_str     0x0000000000000221       0x91 pripherique_config.o
+ .debug_str     0x000000000000003f      0x779 startup_file.o
+                                        0x802 (size before relaxing)
+ .debug_str     0x00000000000007b8       0x26 main.o
+                                        0x145 (size before relaxing)
+ .debug_str     0x00000000000007de       0xc1 pripherique_config.o
                                         0x203 (size before relaxing)
+ .debug_str     0x000000000000089f      0x64d button_configuration.o
+                                        0x7e2 (size before relaxing)
 
-.debug_loc      0x0000000000000000      0x190
+.debug_loc      0x0000000000000000       0xd5
  .debug_loc     0x0000000000000000       0x91 startup_file.o
- .debug_loc     0x0000000000000091       0xff main.o
+ .debug_loc     0x0000000000000091       0x44 button_configuration.o
 
-.debug_frame    0x0000000000000000       0xb8
- .debug_frame   0x0000000000000000       0x3c startup_file.o
- .debug_frame   0x000000000000003c       0x2c main.o
- .debug_frame   0x0000000000000068       0x50 pripherique_config.o
-
-.debug_ranges   0x0000000000000000       0x48
- .debug_ranges  0x0000000000000000       0x48 main.o
+.debug_frame    0x0000000000000000      0x66c
+ .debug_frame   0x0000000000000000      0x5bc startup_file.o
+ .debug_frame   0x00000000000005bc       0x28 main.o
+ .debug_frame   0x00000000000005e4       0x50 pripherique_config.o
+ .debug_frame   0x0000000000000634       0x38 button_configuration.o

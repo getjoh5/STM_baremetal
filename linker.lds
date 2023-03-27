@@ -10,7 +10,7 @@ MEMORY
     
 }
 
-ENTRY(_start)
+/*ENTRY(_start)*/
 
 _sdata = ADDR(.data);
 _ld_sdata = LOADADDR(.data);
@@ -22,12 +22,14 @@ _etext = SIZEOF(.text) + ADDR(.text);
 
 
 SECTIONS{
+   
     .text : {
+        *(.isr_vector)
         *(.text)
-    } > sram1 
+    } > flash
     .rodat : {
         *(.rodata)
-    } > sram1
+    } > flash
     .data : {
         
         *(.data)
