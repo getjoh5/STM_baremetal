@@ -1,5 +1,5 @@
 #include<stdint.h>
-//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
+//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
 //travail sur la gestion des periphérique entré sortie
 //gestion "includedes por usb 
 #include"pripherique_config.h"
