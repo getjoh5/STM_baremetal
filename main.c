@@ -1,10 +1,11 @@
 #include<stdint.h>
-//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
 //travail sur la gestion des periphérique entré sortie
 //gestion "includedes por usb 
 #include"pripherique_config.h"
 #include "startup_filel.h"
 #include "button_configuration.h"
+
+int i = 1555;
 
 int main()
 {
@@ -35,4 +36,3 @@ int main()
 
 
 /*led bright*/
-

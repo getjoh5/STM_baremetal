@@ -1,0 +1,81 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build firmware",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Clean firmware",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Make connect",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "connect"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "jlink",
+                "pattern": {
+                    "regexp": "."
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "SEGGER J-Link GDB Server",
+                    "endsPattern": "Waiting for GDB connection"
+                }
+            }
+        },
+        {
+            "label": "Prepare debug",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build firmware",
+                "Make connect"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Flash firmware",
+            "type": "shell",
+            "command": "gdb-multiarch",
+            "args": [
+                "-q",
+                "--batch",
+                "-ex",
+                "target extended-remote localhost:2331",
+                "-ex",
+                "monitor reset",
+                "-ex",
+                "monitor halt",
+                "-ex",
+                "load",
+                "-ex",
+                "monitor reset",
+                "-ex",
+                "monitor go",
+                "test.elf"
+            ],
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build firmware",
+                "Make connect"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

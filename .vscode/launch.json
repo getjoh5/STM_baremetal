@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32L475 (make connect + flash)",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/test.elf",
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb-multiarch",
+            "preLaunchTask": "Prepare debug",
+            "externalConsole": false,
+            "targetArchitecture": "arm",
+            "launchCompleteCommand": "exec-continue",
+            "customLaunchSetupCommands": [
+                {
+                    "text": "set confirm off"
+                },
+                {
+                    "text": "source ${workspaceFolder}/.gdbinit"
+                },
+                {
+                    "text": "flash"
+                }
+            ]
+        },
+        {
+            "name": "Debug STM32L475 (Cortex-Debug)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/test.elf",
+            "servertype": "jlink",
+            "serverpath": "/usr/bin/JLinkGDBServer",
+            "device": "STM32L475VG",
+            "interface": "swd",
+            "breakAfterReset": true,
+            "gdbPath": "gdb-multiarch",
+            "preLaunchTask": "Build firmware",
+            "showDevDebugOutput": "raw"
+        }
+    ]
+}
