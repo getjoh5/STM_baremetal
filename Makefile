@@ -1,23 +1,53 @@
-CC=arm-none-eabi-gcc
-AS=arm-none-eabi-as
-GDB?=gdb-multiarch
-MACH=cortex-m4
-LIB =-I ./cmsis/CMSIS/Device/ST/STM32L4xx/Include/ -I ./cmsis/CMSIS/Include/
-CFLAGS=-Wall -g3 -Og -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  $(LIB)
-LDFLAGS=-g -nostdlib -T linker.lds -Wl,-Map=final.map -ffreestanding 
-ASFLAGS =-g -mcpu=cortex-m4 -mthumb 
-OBJS=bootloader.o startup_file.o main.o pripherique_config.o button_configuration.o
-EXE=test.elf
-#all: main.o startup_file.o 
+CC      = arm-none-eabi-gcc
+AS      = arm-none-eabi-as
+GDB    ?= gdb-multiarch
 
-$(EXE):$(OBJS)
+EXE     = test.elf
+MAP     = final.map
+
+CPU_FLAGS = -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
+
+INC_DIRS = \
+	cmsis/CMSIS/Device/ST/STM32L4xx/Include \
+	cmsis/CMSIS/Include \
+	drivers \
+	firmware
+
+CPPFLAGS = -DSTM32L475xx $(addprefix -I,$(INC_DIRS))
+CFLAGS   = -Wall -g3 -Og -ffreestanding $(CPU_FLAGS)
+ASFLAGS  = -g $(CPU_FLAGS)
+LDFLAGS  = -g -nostdlib -T linker.lds -Wl,-Map=$(MAP) -ffreestanding $(CPU_FLAGS)
+
+C_SOURCES = \
+	startup_file.c \
+	main.c \
+	drivers/gpio.c \
+	drivers/rcc.c \
+	firmware/led_service.c
+
+ASM_SOURCES = \
+	bootloader.s
+
+OBJS = $(C_SOURCES:.c=.o) $(ASM_SOURCES:.s=.o)
+
+.PHONY: all clean debug connect
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
+
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+%.o: %.s
+	$(AS) $(ASFLAGS) $< -o $@
 
 connect:
 	JLinkGDBServer -device STM32L475VG -endian little -if SWD -speed auto -ir -LocalhostOnly
+
 debug: $(EXE)
 	$(GDB) $<
+
 clean:
-	rm -f *.o *.elf
-.PHONY:
-	clean debug connect
+	rm -f $(OBJS) $(EXE) $(MAP)
