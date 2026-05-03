@@ -16,19 +16,49 @@
 #include <stdint.h>
 #include "stm32l4xx.h"
 
-/* Types publics ------------------------------------------------------------ */
-typedef struct {
-    GPIO_TypeDef *port;
-    uint8_t pin;
-    uint8_t mode;
-    uint8_t pull;
-    uint8_t output_type;
-    uint8_t speed;
-} GPIO_Config;
 
+
+/* Types publics ------------------------------------------------------------ */
 
 /* Constantes publiques ----------------------------------------------------- */
 
 /* Prototypes publics ------------------------------------------------------- */
-void GPIO_int();
+
+/**
+ * @brief Initialise les ports GPIO utilises par les LED.
+ *
+ * @return 0 si l'initialisation reussit, -1 si un pointeur de registre est nul.
+ */
+int GPIO_int(void);
+
+/**
+ * @brief Allume la LED LD1.
+ */
+void GPIO_LD1_ON(void);
+
+/**
+ * @brief Eteint la LED LD1.
+ */
+void GPIO_LD1_OFF(void);
+
+/**
+ * @brief Allume la LED LD2.
+ */
+void GPIO_LD2_ON(void);
+
+/**
+ * @brief Eteint la LED LD2.
+ */
+void GPIO_LD2_OFF(void);
+
+/**
+ * @brief Allume la LED LD8.
+ */
+void GPIO_LD8_ON(void);
+
+/**
+ * @brief Eteint la LED LD8.
+ */
+void GPIO_LD8_OFF(void);
+
 #endif /* DRIVERS_GPIO_H */

@@ -36,11 +36,16 @@ Compiler le firmware :
 make
 ```
 
-Le binaire généré est :
+Les fichiers principaux générés sont :
 
 ```text
 test.elf
+final.map
 ```
+
+`test.elf` est le firmware compilé. `final.map` est généré automatiquement par
+le linker grâce à l'option `-Wl,-Map=final.map`; il permet de vérifier le
+placement des fonctions, variables et sections en mémoire.
 
 Nettoyer les fichiers générés :
 
@@ -93,10 +98,25 @@ cont
 - `linker.lds` : description mémoire et placement des sections.
 - `bootloader.s` : point d'entrée assembleur `_start`.
 - `startup_file.c` : table des vecteurs, handlers faibles, initialisation mémoire et `Reset_handler`.
+- `startup_filel.h` : déclarations utilisées par le code de démarrage.
 - `main.c` : point d'entrée applicatif.
-- `pripherique_config.c/.h` : configuration des périphériques.
-- `button_configuration.c/.h` : configuration du bouton et des interruptions associées.
+- `drivers/gpio.c/.h` : futur driver GPIO bas niveau.
+- `drivers/rcc.c/.h` : futur driver RCC bas niveau.
+- `firmware/led_service.c/.h` : couche applicative pour le service LED.
+- `button_configuration.c/.h` : configuration du bouton et des interruptions associées, conservée comme code d'exemple.
 - `cmsis/` : en-têtes CMSIS pour le STM32L4.
+
+Le `Makefile` compile actuellement :
+
+- `startup_file.c`
+- `main.c`
+- `drivers/gpio.c`
+- `drivers/rcc.c`
+- `firmware/led_service.c`
+- `bootloader.s`
+
+Le symbole `STM32L475xx` est défini à la compilation afin que `stm32l4xx.h`
+inclue automatiquement les définitions propres au STM32L475.
 
 ## Démarrage du programme
 
