@@ -1,6 +1,6 @@
 # STM32L475 bare metal
 
-Ce dépôt est une initiation au développement bare metal sur STM32L475. L'objectif est de partir d'un projet minimal, sans HAL, pour comprendre le démarrage du microcontrôleur, le script de link, la table des vecteurs, la configuration des GPIO et la gestion des interruptions.
+Ce dépôt est une initiation au développement bare metal sur STM32L475. L'objectif est de partir d'un projet minimal, sans HAL, pour comprendre le démarrage du microcontrôleur, le script de link, la table des vecteurs, la configuration des GPIO, la gestion des interruptions et l'utilisation d'un timer matériel comme base de temps applicative.
 
 ## Matériel cible
 
@@ -100,9 +100,10 @@ cont
 - `startup_file.c` : table des vecteurs, handlers faibles, initialisation mémoire et `Reset_handler`.
 - `startup_filel.h` : déclarations utilisées par le code de démarrage.
 - `main.c` : point d'entrée applicatif.
-- `drivers/gpio.c/.h` : futur driver GPIO bas niveau.
-- `drivers/rcc.c/.h` : futur driver RCC bas niveau.
+- `drivers/gpio.c/.h` : driver GPIO bas niveau pour les LED.
+- `drivers/Timer.c/.h` : driver TIM2 bas niveau, configure un compteur libre avec une resolution de 1 ms.
 - `firmware/led_service.c/.h` : couche applicative pour le service LED.
+- `firmware/timer_service.c/.h` : service applicatif de temporisation non bloquante base sur TIM2.
 - `button_configuration.c/.h` : configuration du bouton et des interruptions associées, conservée comme code d'exemple.
 - `cmsis/` : en-têtes CMSIS pour le STM32L4.
 
@@ -111,8 +112,9 @@ Le `Makefile` compile actuellement :
 - `startup_file.c`
 - `main.c`
 - `drivers/gpio.c`
-- `drivers/rcc.c`
+- `drivers/Timer.c`
 - `firmware/led_service.c`
+- `firmware/timer_service.c`
 - `bootloader.s`
 
 Le symbole `STM32L475xx` est défini à la compilation afin que `stm32l4xx.h`
@@ -156,6 +158,61 @@ La configuration d'un GPIO suit généralement ces étapes :
 5. Pour une entrée, lire via `GPIOx_IDR`.
 
 Toujours vérifier les registres dans la documentation de référence du STM32L475.
+
+## Base de temps TIM2
+
+Le projet utilise TIM2 comme compteur libre 32 bits. La configuration est faite
+dans `drivers/Timer.c` :
+
+- activation de l'horloge TIM2 via `RCC->APB1ENR1`;
+- arrêt du timer pendant la configuration;
+- `PSC = 3999`;
+- `ARR = 0xFFFFFFFF`;
+- remise à zéro de `CNT`;
+- génération d'un update event avec `TIM2->EGR = TIM_EGR_UG`;
+- démarrage du compteur avec `TIM_CR1_CEN`.
+
+Avec une horloge timer de 4 MHz, le prescaler donne :
+
+```text
+4 MHz / (3999 + 1) = 1000 Hz
+```
+
+TIM2 avance donc à 1000 ticks par seconde. Un tick vaut 1 ms, et une durée
+de `5000` ticks correspond à `5000 ms`, soit 5 secondes.
+
+Le service `firmware/timer_service.c` ne configure pas le timer matériel. Il
+reçoit seulement l'adresse du compteur, par exemple `&TIM2->CNT`, puis compare
+la valeur courante avec une valeur capturée au dernier reset. La comparaison
+utilise une soustraction unsigned :
+
+```c
+(*sourceTimer - CaptureValue) >= ResetValue
+```
+
+Cette forme reste correcte même lorsque le compteur 32 bits déborde et revient
+à zéro.
+
+## Blink LED 5 secondes
+
+`main.c` initialise les GPIO, TIM2 et le service timer. La LED de démarrage
+signale que l'initialisation s'est bien passée, puis la boucle principale
+bascule `LED_USER` toutes les 5 secondes :
+
+```c
+timer_reset_serv(&oTimer, 5000);
+
+while(1){
+    if(timer_expired_serv(&oTimer) == 1){
+        /* Toggle LED_USER. */
+        timer_reset_serv(&oTimer, 5000);
+    }
+}
+```
+
+Cette logique est non bloquante : il n'y a plus de boucle d'attente logicielle
+pour créer le délai. Le processeur peut donc continuer à exécuter d'autres
+tâches dans la boucle principale entre deux expirations du timer.
 
 ## Interruptions
 

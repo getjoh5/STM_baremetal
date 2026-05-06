@@ -22,13 +22,15 @@ C_SOURCES = \
 	startup_file.c \
 	main.c \
 	drivers/gpio.c \
-	drivers/rcc.c \
-	firmware/led_service.c
+	drivers/Timer.c \
+	firmware/led_service.c \
+	firmware/timer_service.c
 
 ASM_SOURCES = \
 	bootloader.s
 
 OBJS = $(C_SOURCES:.c=.o) $(ASM_SOURCES:.s=.o)
+EXTRA_CLEAN = firmware/timer_service
 
 .PHONY: all clean debug connect
 
@@ -50,4 +52,4 @@ debug: $(EXE)
 	$(GDB) $<
 
 clean:
-	rm -f $(OBJS) $(EXE) $(MAP)
+	rm -f $(OBJS) $(EXE) $(MAP) $(EXTRA_CLEAN)

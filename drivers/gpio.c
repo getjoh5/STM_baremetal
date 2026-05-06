@@ -12,6 +12,7 @@
 
 #include "gpio.h"
 #include "stddef.h"
+#include "stm32l4xx.h"
 
 #define ENABLE_REG_BIT(A,B) (A|(0x1UL<<B))
 #define DESABLE_REG_BIT(A,B)(A&(~(0x1UL<<B)))
