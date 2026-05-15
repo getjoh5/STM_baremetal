@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "${workspaceFolder}/cmsis/CMSIS/Device/ST/STM32L4xx/Include",
+        "${workspaceFolder}/cmsis/CMSIS/Include",
+        "${workspaceFolder}/drivers",
+        "${workspaceFolder}/firmware",
+        "${workspaceFolder}"
+      ],
+      "defines": [
+        "STM32L475xx"
+      ],
+      "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+      "cStandard": "c11",
+      "intelliSenseMode": "gcc-arm"
+    }
+  ],
+  "version": 4
+}
