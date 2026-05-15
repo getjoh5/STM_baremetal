@@ -12,6 +12,33 @@
 
 #include <stdint.h>
 
+/* Definition des registres SysTick du coeur Cortex-M. */
+#define SYSTICK_BASE        0xE000E010
+typedef union
+{
+   uint32_t value;
+   struct BIT_STK_CTRL{
+        uint32_t ENABLE      :1;
+        uint32_t TICKINT     :1;
+        uint32_t CLKSOURCE   :1;
+        uint32_t RESERVE1    :12;
+        uint32_t COUNTFLAG   :1;
+        uint32_t RESERVE2    :14;
+   } Bit_Value;
+}STK_CTRL_TypeDef;
+
+typedef struct
+{
+   STK_CTRL_TypeDef STCK_CTRL;
+   uint32_t         STCK_LOAD;
+   uint32_t         STCK_VAL;
+   uint32_t         STCK_CALIB;
+}SYSTICK_TypeDef;
+
+#define SYSTICK          ((SYSTICK_TypeDef *) SYSTICK_BASE)
+
+/* Compteur milliseconde incremente par l'interruption SysTick. */
+extern volatile uint32_t  GlobalSystick;
 /**
  * @brief Initialise TIM2 comme base de temps en millisecondes.
  *

@@ -17,6 +17,9 @@
 #define TIM2_PRESCALER_1MS     3999U
 #define TIM2_MAX_RELOAD        0xFFFFFFFFU
 
+/* Base de temps partagee avec le service timer. */
+volatile uint32_t  GlobalSystick;
+
 /* Fonctions publiques ------------------------------------------------------ */
 
 int timer_init(void){
@@ -35,9 +38,20 @@ int timer_init(void){
     TIM2->EGR = TIM_EGR_UG;
     TIM2->CR1 = TIM_CR1_CEN;
 
+    /* Configure SysTick pour generer une interruption periodique. */
+    SYSTICK->STCK_LOAD                      = TIM2_PRESCALER_1MS;
+    SYSTICK->STCK_CTRL.Bit_Value.CLKSOURCE  = 1U;
+    SYSTICK->STCK_CTRL.Bit_Value.TICKINT    = 1U;
+    SYSTICK->STCK_CTRL.Bit_Value.ENABLE     = 1U;
+
     return 0;
 }
 
 uint32_t timer_get_counter(void){
     return (uint32_t)TIM2->CNT;
+}
+
+void SysTick_Handler(){
+    /* Incremente la base de temps a chaque interruption SysTick. */
+    GlobalSystick++;
 }

@@ -18,7 +18,8 @@ int main()
         LED_TurnOn(LED_START_FINISH_BAD);
         errors++;
     }
-    if(timer_init_serv(&oTimer, &TIM2->CNT) == -1){
+    /* Utilise SysTick comme source de temps du service timer. */
+    if(timer_init_serv(&oTimer, &GlobalSystick/*&TIM2->CNT*/) == -1){
         LED_TurnOn(LED_START_FINISH_BAD);
         errors++;
     }
@@ -31,7 +32,8 @@ int main()
 
     LED_TurnOn(LED_START_FINISH_GOOD);
 
-    timer_reset_serv(&oTimer, 5000);
+    /* Premier delai avant le basculement de la LED utilisateur. */
+    timer_reset_serv(&oTimer, 1000);
 
     while(1){
         if(timer_expired_serv(&oTimer) == 1){
@@ -43,7 +45,8 @@ int main()
                 led_on = 0;
             }
 
-            timer_reset_serv(&oTimer, 5000);
+            /* Relance un delai de 1 seconde apres chaque basculement. */
+            timer_reset_serv(&oTimer, 1000);
         }
     }
    return 0;
