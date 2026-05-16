@@ -23,6 +23,7 @@ C_SOURCES = \
 	main.c \
 	drivers/gpio.c \
 	drivers/Timer.c \
+	drivers/spi.c \
 	firmware/led_service.c \
 	firmware/timer_service.c
 

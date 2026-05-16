@@ -100,8 +100,9 @@ cont
 - `startup_file.c` : table des vecteurs, handlers faibles, initialisation mémoire et `Reset_handler`.
 - `startup_filel.h` : déclarations utilisées par le code de démarrage.
 - `main.c` : point d'entrée applicatif.
-- `drivers/gpio.c/.h` : driver GPIO bas niveau pour les LED.
-- `drivers/Timer.c/.h` : driver TIM2 bas niveau, configure un compteur libre avec une resolution de 1 ms.
+- `drivers/gpio.c/.h` : driver GPIO bas niveau pour les LED et les lignes de controle SPI.
+- `drivers/Timer.c/.h` : driver TIM2 et SysTick bas niveau, avec une resolution de 1 ms.
+- `drivers/spi.c/.h` : debut du driver SPI1 bas niveau.
 - `firmware/led_service.c/.h` : couche applicative pour le service LED.
 - `firmware/timer_service.c/.h` : service applicatif de temporisation non bloquante base sur TIM2.
 - `button_configuration.c/.h` : configuration du bouton et des interruptions associées, conservée comme code d'exemple.
@@ -113,6 +114,7 @@ Le `Makefile` compile actuellement :
 - `main.c`
 - `drivers/gpio.c`
 - `drivers/Timer.c`
+- `drivers/spi.c`
 - `firmware/led_service.c`
 - `firmware/timer_service.c`
 - `bootloader.s`
@@ -159,9 +161,10 @@ La configuration d'un GPIO suit généralement ces étapes :
 
 Toujours vérifier les registres dans la documentation de référence du STM32L475.
 
-## Base de temps TIM2
+## Base de temps TIM2 et SysTick
 
-Le projet utilise TIM2 comme compteur libre 32 bits. La configuration est faite
+Le projet conserve TIM2 comme compteur libre 32 bits et configure aussi SysTick
+comme base de temps partagee avec le service timer. La configuration est faite
 dans `drivers/Timer.c` :
 
 - activation de l'horloge TIM2 via `RCC->APB1ENR1`;
@@ -171,6 +174,8 @@ dans `drivers/Timer.c` :
 - remise à zéro de `CNT`;
 - génération d'un update event avec `TIM2->EGR = TIM_EGR_UG`;
 - démarrage du compteur avec `TIM_CR1_CEN`.
+- configuration de SysTick pour generer une interruption periodique;
+- incrementation de `GlobalSystick` dans `SysTick_Handler`.
 
 Avec une horloge timer de 4 MHz, le prescaler donne :
 
@@ -178,13 +183,14 @@ Avec une horloge timer de 4 MHz, le prescaler donne :
 4 MHz / (3999 + 1) = 1000 Hz
 ```
 
-TIM2 avance donc à 1000 ticks par seconde. Un tick vaut 1 ms, et une durée
-de `5000` ticks correspond à `5000 ms`, soit 5 secondes.
+TIM2 avance donc à 1000 ticks par seconde. Le service timer utilise maintenant
+`GlobalSystick` comme source de temps; un tick vaut 1 ms, et une durée de
+`1000` ticks correspond à `1000 ms`, soit 1 seconde.
 
 Le service `firmware/timer_service.c` ne configure pas le timer matériel. Il
-reçoit seulement l'adresse du compteur, par exemple `&TIM2->CNT`, puis compare
-la valeur courante avec une valeur capturée au dernier reset. La comparaison
-utilise une soustraction unsigned :
+reçoit seulement l'adresse du compteur, par exemple `&GlobalSystick`, puis
+compare la valeur courante avec une valeur capturée au dernier reset. La
+comparaison utilise une soustraction unsigned :
 
 ```c
 (*sourceTimer - CaptureValue) >= ResetValue
@@ -193,19 +199,19 @@ utilise une soustraction unsigned :
 Cette forme reste correcte même lorsque le compteur 32 bits déborde et revient
 à zéro.
 
-## Blink LED 5 secondes
+## Blink LED 1 seconde
 
 `main.c` initialise les GPIO, TIM2 et le service timer. La LED de démarrage
 signale que l'initialisation s'est bien passée, puis la boucle principale
-bascule `LED_USER` toutes les 5 secondes :
+bascule `LED_USER` toutes les secondes :
 
 ```c
-timer_reset_serv(&oTimer, 5000);
+timer_reset_serv(&oTimer, 1000);
 
 while(1){
     if(timer_expired_serv(&oTimer) == 1){
         /* Toggle LED_USER. */
-        timer_reset_serv(&oTimer, 5000);
+        timer_reset_serv(&oTimer, 1000);
     }
 }
 ```
@@ -213,6 +219,20 @@ while(1){
 Cette logique est non bloquante : il n'y a plus de boucle d'attente logicielle
 pour créer le délai. Le processeur peut donc continuer à exécuter d'autres
 tâches dans la boucle principale entre deux expirations du timer.
+
+## Preparation SPI1
+
+Le projet commence l'ajout d'un driver SPI1 bas niveau. `drivers/spi.c` active
+pour l'instant l'horloge SPI1 sur le bus APB2. La configuration des broches est
+faite dans `drivers/gpio.c` :
+
+- PA5 : `SPI1_SCK` en fonction alternative AF5;
+- PA7 : `SPI1_MOSI` en fonction alternative AF5;
+- PA3 : ligne `Data/Command` en sortie GPIO;
+- PA4 : ligne `Reset` en sortie GPIO.
+
+Les fonctions `GPIO_PA3_ON/OFF` et `GPIO_PA4_ON/OFF` permettent de piloter les
+lignes de controle depuis les couches plus hautes.
 
 ## Interruptions
 

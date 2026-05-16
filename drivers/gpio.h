@@ -42,6 +42,26 @@ void GPIO_LD1_ON(void);
 void GPIO_LD1_OFF(void);
 
 /**
+ * @brief Met la ligne Reset PA4 a l'etat haut.
+ */
+void GPIO_PA4_ON(void);
+
+/**
+ * @brief Met la ligne Reset PA4 a l'etat bas.
+ */
+void GPIO_PA4_OFF(void);
+
+/**
+ * @brief Met la ligne Data/Command PA3 a l'etat haut.
+ */
+void GPIO_PA3_ON(void);
+
+/**
+ * @brief Met la ligne Data/Command PA3 a l'etat bas.
+ */
+void GPIO_PA3_OFF(void);
+
+/**
  * @brief Allume la LED LD2.
  */
 void GPIO_LD2_ON(void);
