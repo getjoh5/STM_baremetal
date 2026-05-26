@@ -36,10 +36,10 @@ int GPIO_int(){
     }
 
     //initialisation of clock
-    RCC->AHB2ENR = ENABLE_REG_BIT(RCC->AHB2ENR,RCC_AHB2SMENR_GPIOASMEN_Pos);
-    RCC->AHB2ENR = ENABLE_REG_BIT(RCC->AHB2ENR,RCC_AHB2SMENR_GPIOBSMEN_Pos);
-    RCC->AHB2ENR = ENABLE_REG_BIT(RCC->AHB2ENR,RCC_AHB2SMENR_GPIOCSMEN_Pos);
-    RCC->AHB2ENR = ENABLE_REG_BIT(RCC->AHB2ENR,RCC_AHB2SMENR_GPIOESMEN_Pos);
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN;
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOEEN;
 
     //initialisation of GPIO
     //Mode
@@ -50,7 +50,7 @@ int GPIO_int(){
 
     /* Configure PA5 en fonction alternative SPI1_SCK. */
     GPIOA->AFR[0] &= ~(0xFUL<<(20U));
-    GPIOA->AFR[0] |= (0x5UL<<(20U));
+    GPIOA->AFR[0] |=  (0x5UL<<(20U));
 
     GPIOA->MODER &= ~(0x3UL<<(10U)); //reset register
     GPIOA->MODER |=  (0x2UL<<(10U)); //set register
@@ -88,11 +88,20 @@ int GPIO_int(){
     GPIOE->OTYPER &= ~GPIO_OTYPER_OT3;
 
     //speed configuration
-    /* Applique une vitesse faible aux lignes utilisees par SPI1 et le controle. */
-    GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR5_0;
-    GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR7_0;
+    /* Applique une vitesse elevee aux lignes SPI et une vitesse moyenne au controle. */
+    GPIOA->OSPEEDR &= ~(0x3UL<<(10U));
+    GPIOA->OSPEEDR |=  (0x3UL<<(10U));
+    GPIOA->OSPEEDR &= ~(0x3UL<<(14U));
+    GPIOA->OSPEEDR |=  (0x3UL<<(14U));
+    GPIOA->OSPEEDR &= ~(0x3UL<<(6U));
     GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3_0;
+    GPIOA->OSPEEDR &= ~(0x3UL<<(8U));
     GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR4_0;
+
+    GPIOA->PUPDR &= ~(0x3UL<<(10U)); // SCK no pull
+    GPIOA->PUPDR &= ~(0x3UL<<(14U)); // MOSI no pull
+    GPIOA->PUPDR &= ~(0x3UL<<(6U));  // DC no pull
+    GPIOA->PUPDR &= ~(0x3UL<<(8U));  // RST no pull
 
     GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR14_0;
     GPIOE->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3_0;
@@ -128,8 +137,7 @@ void GPIO_LD1_OFF(){
  */
 void GPIO_PA4_OFF(){
     if(GPIOA == NULL)return;
-    GPIOA->BSRR    &= ~GPIO_BSRR_BS4;
-    GPIOA->BSRR    |= GPIO_BSRR_BR4;
+    GPIOA->BSRR = GPIO_BSRR_BR4;
 }
 
 /**
@@ -137,8 +145,7 @@ void GPIO_PA4_OFF(){
  */
 void GPIO_PA3_OFF(){
     if(GPIOA == NULL)return;
-    GPIOA->BSRR    &= ~GPIO_BSRR_BS3;
-    GPIOA->BSRR    |= GPIO_BSRR_BR3;
+    GPIOA->BSRR = GPIO_BSRR_BR3;
 }
 
 /**
@@ -146,9 +153,7 @@ void GPIO_PA3_OFF(){
  */
 void GPIO_PA4_ON(){
     if(GPIOA == NULL)return;
-    //GPIOA->BSRR    |= GPIO_BSRR_BS5;
-    //GPIOA->BSRR    &= ~GPIO_BSRR_BR5;
-    GPIOA->ODR       |= GPIO_ODR_OD4;
+    GPIOA->BSRR = GPIO_BSRR_BS4;
 }
 
 /**
@@ -156,9 +161,7 @@ void GPIO_PA4_ON(){
  */
 void GPIO_PA3_ON(){
     if(GPIOA == NULL)return;
-    //GPIOA->BSRR    |= GPIO_BSRR_BS5;
-    //GPIOA->BSRR    &= ~GPIO_BSRR_BR5;
-    GPIOA->ODR       |= GPIO_ODR_OD3;
+    GPIOA->BSRR = GPIO_BSRR_BS3;
 }
 
 /**

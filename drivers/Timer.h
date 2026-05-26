@@ -54,4 +54,9 @@ int timer_init(void);
  */
 uint32_t timer_get_counter(void);
 
+/**
+ * @brief Attend un nombre de millisecondes en utilisant GlobalSystick.
+ */
+void timer_delay_ms(uint32_t delay_ms);
+
 #endif /* DRIVERS_TIMER_H */

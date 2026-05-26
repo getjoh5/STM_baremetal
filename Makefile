@@ -11,7 +11,8 @@ INC_DIRS = \
 	cmsis/CMSIS/Device/ST/STM32L4xx/Include \
 	cmsis/CMSIS/Include \
 	drivers \
-	firmware
+	firmware \
+	ST7789-STM32-master/ST7789
 
 CPPFLAGS = -DSTM32L475xx $(addprefix -I,$(INC_DIRS))
 CFLAGS   = -Wall -g3 -Og -ffreestanding $(CPU_FLAGS)
@@ -24,6 +25,8 @@ C_SOURCES = \
 	drivers/gpio.c \
 	drivers/Timer.c \
 	drivers/spi.c \
+	ST7789-STM32-master/ST7789/st7789.c \
+	ST7789-STM32-master/ST7789/fonts.c \
 	firmware/led_service.c \
 	firmware/timer_service.c
 

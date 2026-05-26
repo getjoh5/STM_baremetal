@@ -51,6 +51,13 @@ uint32_t timer_get_counter(void){
     return (uint32_t)TIM2->CNT;
 }
 
+void timer_delay_ms(uint32_t delay_ms){
+    uint32_t start = GlobalSystick;
+
+    while((uint32_t)(GlobalSystick - start) < delay_ms){
+    }
+}
+
 void SysTick_Handler(){
     /* Incremente la base de temps a chaque interruption SysTick. */
     GlobalSystick++;

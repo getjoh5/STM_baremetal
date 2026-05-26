@@ -25,7 +25,7 @@ void LED_TurnOn(int oLed)
 
     switch(ledType) {
         case LED_START_FINISH_GOOD:
-            GPIO_LD1_ON();
+            //GPIO_LD1_ON();
             break;
 
         case LED_START_FINISH_BAD:
@@ -52,7 +52,7 @@ void LED_TurnOff(int oLed)
 
     switch(ledType) {
         case LED_START_FINISH_GOOD:
-            GPIO_LD1_OFF();
+            //GPIO_LD1_OFF();
             break;
 
         case LED_START_FINISH_BAD:
