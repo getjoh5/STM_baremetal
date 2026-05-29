@@ -79,14 +79,23 @@ int main()
 
     ST7789_Init();
     debug_blink_user_led(3);
+    ST7789_DrawImage(0,0,240,240,(uint16_t*)image_240x240);
+
 
     while(1){
         LED_TurnOn(LED_USER);
-        ST7789_Fill_Color(RED);
+        //ST7789_Fill_Color(RED);
+        //ST7789_Test();
+        /*ST7789_DrawImage(0,0,240,240,(uint16_t*)knky);
+        timer_delay_ms(1000);
+        ST7789_DrawImage(0,0,240,240,(uint16_t*)tek);
+        timer_delay_ms(1000);
+        ST7789_DrawImage(0,0,240,240,(uint16_t*)adi1);
+        timer_delay_ms(1000);*/
         LED_TurnOff(LED_USER);
         timer_delay_ms(1000);
 
-        LED_TurnOn(LED_USER);
+        /*LED_TurnOn(LED_USER);
         ST7789_Fill_Color(GREEN);
         LED_TurnOff(LED_USER);
         timer_delay_ms(1000);
@@ -94,7 +103,7 @@ int main()
         LED_TurnOn(LED_USER);
         ST7789_Fill_Color(BLUE);
         LED_TurnOff(LED_USER);
-        timer_delay_ms(1000);
+        timer_delay_ms(1000);*/
     }
    return 0;
 }

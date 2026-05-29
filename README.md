@@ -23,6 +23,7 @@ Installer les outils suivants :
 - `arm-none-eabi-as`
 - `gdb-multiarch` ou `arm-none-eabi-gdb`
 - `JLinkGDBServer`
+- Python 3 avec `Pillow`, utilisé par l'outil de conversion d'image ST7789.
 
 Le serveur J-Link est disponible dans le pack officiel Segger : <https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack>
 
@@ -105,6 +106,8 @@ cont
 - `drivers/spi.c/.h` : debut du driver SPI1 bas niveau.
 - `firmware/led_service.c/.h` : couche applicative pour le service LED.
 - `firmware/timer_service.c/.h` : service applicatif de temporisation non bloquante base sur TIM2.
+- `ST7789-STM32-master/ST7789/` : driver ST7789, fontes et tableaux d'images RGB565.
+- `tools/generate_st7789_image.py` : conversion d'une photo PNG/JPG en tableau C RGB565 240x240.
 - `button_configuration.c/.h` : configuration du bouton et des interruptions associées, conservée comme code d'exemple.
 - `cmsis/` : en-têtes CMSIS pour le STM32L4.
 
@@ -117,6 +120,8 @@ Le `Makefile` compile actuellement :
 - `drivers/spi.c`
 - `firmware/led_service.c`
 - `firmware/timer_service.c`
+- `ST7789-STM32-master/ST7789/st7789.c`
+- `ST7789-STM32-master/ST7789/fonts.c`
 - `bootloader.s`
 
 Le symbole `STM32L475xx` est défini à la compilation afin que `stm32l4xx.h`
@@ -222,9 +227,10 @@ tâches dans la boucle principale entre deux expirations du timer.
 
 ## Preparation SPI1
 
-Le projet commence l'ajout d'un driver SPI1 bas niveau. `drivers/spi.c` active
-pour l'instant l'horloge SPI1 sur le bus APB2. La configuration des broches est
-faite dans `drivers/gpio.c` :
+Le projet contient un driver SPI1 bas niveau utilise par l'ecran ST7789.
+`drivers/spi.c` configure SPI1 en maitre, transmission MOSI seule, trames 8
+bits et ordre MSB first. La configuration des broches est faite dans
+`drivers/gpio.c` :
 
 - PA5 : `SPI1_SCK` en fonction alternative AF5;
 - PA7 : `SPI1_MOSI` en fonction alternative AF5;
@@ -233,6 +239,47 @@ faite dans `drivers/gpio.c` :
 
 Les fonctions `GPIO_PA3_ON/OFF` et `GPIO_PA4_ON/OFF` permettent de piloter les
 lignes de controle depuis les couches plus hautes.
+
+## Ecran ST7789 240x240
+
+Le firmware initialise l'ecran avec `ST7789_Init()`, puis affiche un tableau
+RGB565 240x240 avec :
+
+```c
+ST7789_DrawImage(0, 0, 240, 240, (uint16_t*)image_240x240);
+```
+
+Le tableau `image_240x240` est declare dans
+`ST7789-STM32-master/ST7789/fonts.h` et defini dans
+`ST7789-STM32-master/ST7789/fonts.c`. Un tableau complet 240x240 occupe environ
+115 Ko en flash, car il contient `240 * 240` pixels de 16 bits.
+
+## Convertir une photo pour l'ecran
+
+L'outil `tools/generate_st7789_image.py` convertit une image PNG/JPG en tableau
+C RGB565 240x240. Il corrige l'orientation EXIF, recadre l'image au centre en
+format carre, redimensionne en 240x240, puis genere les valeurs RGB565.
+
+Pour remplacer directement le tableau affiche par `main.c` :
+
+```sh
+tools/generate_st7789_image.py photo.jpg --replace ST7789-STM32-master/ST7789/fonts.c --byteswap
+```
+
+`--byteswap` est adapte au driver actuel, car `ST7789_DrawImage()` transmet le
+buffer `uint16_t` directement sur SPI depuis une architecture little-endian. Si
+les couleurs apparaissent inversees ou incoherentes sur l'ecran, refaire un
+essai sans cette option :
+
+```sh
+tools/generate_st7789_image.py photo.jpg --replace ST7789-STM32-master/ST7789/fonts.c
+```
+
+Pour generer un fichier C separe sans modifier `fonts.c` :
+
+```sh
+tools/generate_st7789_image.py photo.jpg -o image_240x240.c
+```
 
 ## Interruptions
 
