@@ -462,6 +462,61 @@ void ST7789_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t co
 	ST7789_UnSelect();
 }
 
+void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color)
+{
+	uint32_t i, b, j;
+	ST7789_Select();
+	//ST7789_SetAddressWindow(x, y, x + font.width - 1, y + font.height - 1);
+
+	for (i = 0; i < font.height; i++) {
+		b = font.data[(ch - 32) * font.height + i];
+		for (j = 0; j < font.width; j++) {
+			if ((b << j) & 0x8000) {
+				//uint8_t data[] = {color >> 8, color & 0xFF};
+				//ST7789_WriteData(data, sizeof(data));
+				ST7789_DrawPixel(x+j, y+i, color);
+			}
+			else {
+				continue;
+			}
+		}
+	}
+	ST7789_UnSelect();
+}
+
+/** 
+ * @brief Write a string 
+ * @param  x&y -> cursor of the start point.
+ * @param str -> string to write
+ * @param font -> fontstyle of the string
+ * @param color -> color of the string
+ * @param bgcolor -> background color of the string
+ * @return  none
+ */
+void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color)
+{
+	ST7789_Select();
+	while (*str) {
+		if (x + font.width >= ST7789_WIDTH) {
+			x = 0;
+			y += font.height;
+			if (y + font.height >= ST7789_HEIGHT) {
+				break;
+			}
+
+			if (*str == ' ') {
+				// skip spaces in the beginning of the new line
+				str++;
+				continue;
+			}
+		}
+		ST7789_WriteCharTransparent(x, y, *str, font, color);
+		x += font.width;
+		str++;
+	}
+	ST7789_UnSelect();
+}
+
 /** 
  * @brief Write a string 
  * @param  x&y -> cursor of the start point.

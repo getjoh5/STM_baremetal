@@ -32,4 +32,5 @@ extern const uint16_t tek[][240];
 extern const uint16_t adi1[][240];
 extern const uint16_t image_rgb565[240*240];
 extern const uint16_t image_240x240[240][240] ;
+extern const uint16_t StartImage[240][240];
 #endif

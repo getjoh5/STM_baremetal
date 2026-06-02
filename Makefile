@@ -28,7 +28,9 @@ C_SOURCES = \
 	ST7789-STM32-master/ST7789/st7789.c \
 	ST7789-STM32-master/ST7789/fonts.c \
 	firmware/led_service.c \
-	firmware/timer_service.c
+	firmware/timer_service.c \
+	Application.c \
+	tools/StartImage.c
 
 ASM_SOURCES = \
 	bootloader.s

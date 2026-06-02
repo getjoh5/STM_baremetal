@@ -23,6 +23,19 @@ static void debug_blink_user_led(uint32_t count)
     }
 }
 
+static void restore_photo_area(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+    for (uint16_t row = 0; row < h; row++) {
+        ST7789_DrawImage(
+            x,
+            y + row,
+            w,
+            1,
+            (uint16_t *)&image_240x240[y + row][x]
+        );
+    }
+}
+
 int main()
 {
     int errors = 0;
@@ -79,11 +92,11 @@ int main()
 
     ST7789_Init();
     debug_blink_user_led(3);
-    ST7789_DrawImage(0,0,240,240,(uint16_t*)image_240x240);
-
+    ST7789_DrawImage(0,0,240,240,(uint16_t*)StartImage);
+    ST7789_WriteStringTransparent(100,180,"14:35",Font_16x26,WHITE);
 
     while(1){
-        LED_TurnOn(LED_USER);
+        
         //ST7789_Fill_Color(RED);
         //ST7789_Test();
         /*ST7789_DrawImage(0,0,240,240,(uint16_t*)knky);
@@ -92,11 +105,16 @@ int main()
         timer_delay_ms(1000);
         ST7789_DrawImage(0,0,240,240,(uint16_t*)adi1);
         timer_delay_ms(1000);*/
-        LED_TurnOff(LED_USER);
+        //timer_delay_ms(1000);
+        // Deux-points visibles
+        ST7789_WriteStringTransparent(132, 180, ":", Font_16x26, WHITE);
         timer_delay_ms(1000);
-
-        /*LED_TurnOn(LED_USER);
-        ST7789_Fill_Color(GREEN);
+        LED_TurnOff(LED_USER);
+        // Deux-points caches: on restaure la photo derriere eux
+        restore_photo_area(132, 180, 16, 26);
+        timer_delay_ms(1000);
+        LED_TurnOn(LED_USER);
+        /*ST7789_Fill_Color(GREEN);
         LED_TurnOff(LED_USER);
         timer_delay_ms(1000);
 
