@@ -5,6 +5,7 @@
       "includePath": [
         "${workspaceFolder}/cmsis/CMSIS/Device/ST/STM32L4xx/Include",
         "${workspaceFolder}/cmsis/CMSIS/Include",
+        "${workspaceFolder}/ST7789-STM32-master/ST7789",
         "${workspaceFolder}/drivers",
         "${workspaceFolder}/firmware",
         "${workspaceFolder}"

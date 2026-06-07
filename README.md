@@ -106,8 +106,11 @@ cont
 - `drivers/spi.c/.h` : debut du driver SPI1 bas niveau.
 - `firmware/led_service.c/.h` : couche applicative pour le service LED.
 - `firmware/timer_service.c/.h` : service applicatif de temporisation non bloquante base sur TIM2.
+- `Application.c/.h` : couche applicative principale, ecran de demarrage, messages et barre de chargement.
+- `Application_def.h` : constantes, messages et etapes de l'application.
 - `ST7789-STM32-master/ST7789/` : driver ST7789, fontes et tableaux d'images RGB565.
 - `tools/generate_st7789_image.py` : conversion d'une photo PNG/JPG en tableau C RGB565 240x240.
+- `tools/StartImage.c` : image RGB565 240x240 utilisee comme fond de l'ecran de demarrage.
 - `button_configuration.c/.h` : configuration du bouton et des interruptions associées, conservée comme code d'exemple.
 - `cmsis/` : en-têtes CMSIS pour le STM32L4.
 
@@ -122,6 +125,8 @@ Le `Makefile` compile actuellement :
 - `firmware/timer_service.c`
 - `ST7789-STM32-master/ST7789/st7789.c`
 - `ST7789-STM32-master/ST7789/fonts.c`
+- `Application.c`
+- `tools/StartImage.c`
 - `bootloader.s`
 
 Le symbole `STM32L475xx` est défini à la compilation afin que `stm32l4xx.h`
@@ -204,6 +209,43 @@ comparaison utilise une soustraction unsigned :
 Cette forme reste correcte même lorsque le compteur 32 bits déborde et revient
 à zéro.
 
+## Couche Application
+
+Le module `Application.c` regroupe la sequence de demarrage visible par
+l'utilisateur. La fonction principale est :
+
+```c
+int App_init(Application_t *app, volatile uint32_t *Tim);
+```
+
+Elle verifie les pointeurs d'entree, initialise l'ecran ST7789, affiche l'image
+de fond `StartImage`, initialise le service timer applicatif, puis affiche une
+petite sequence de bienvenue et une barre de chargement.
+
+Comme le firmware est linke avec `-nostdlib`, `Application.c` utilise un helper
+local `app_copy_string()` au lieu de `strcpy()`. Cela evite de dependre de la
+libc tout en gardant les messages termines par `'\0'`.
+
+Pour effacer un texte transparent sans detruire l'image de fond, le module
+utilise `restore_photo_area()`. Cette fonction restaure une zone depuis
+`StartImage` ligne par ligne, car une sous-zone d'une image 240x240 n'est pas
+stockee comme un bloc compact en memoire.
+
+La barre de chargement utilise les constantes definies dans `Application.h` :
+
+```c
+#define BAR_X      0
+#define BAR_Y      221
+#define BAR_W      240
+#define BAR_H      18
+#define BAR_BORDER WHITE
+#define BAR_FILL   WHITE
+```
+
+Le remplissage est fait par tranches : le code calcule la largeur deja affichee
+et ne dessine que la nouvelle partie de la barre, afin de reduire le nombre de
+pixels envoyes sur SPI.
+
 ## Blink LED 1 seconde
 
 `main.c` initialise les GPIO, TIM2 et le service timer. La LED de démarrage
@@ -246,13 +288,12 @@ Le firmware initialise l'ecran avec `ST7789_Init()`, puis affiche un tableau
 RGB565 240x240 avec :
 
 ```c
-ST7789_DrawImage(0, 0, 240, 240, (uint16_t*)image_240x240);
+ST7789_DrawImage(0, 0, 240, 240, (uint16_t*)StartImage);
 ```
 
-Le tableau `image_240x240` est declare dans
-`ST7789-STM32-master/ST7789/fonts.h` et defini dans
-`ST7789-STM32-master/ST7789/fonts.c`. Un tableau complet 240x240 occupe environ
-115 Ko en flash, car il contient `240 * 240` pixels de 16 bits.
+Le tableau `StartImage` est defini dans `tools/StartImage.c`. Un tableau
+complet 240x240 occupe environ 115 Ko en flash, car il contient `240 * 240`
+pixels de 16 bits.
 
 ## Convertir une photo pour l'ecran
 
@@ -260,10 +301,10 @@ L'outil `tools/generate_st7789_image.py` convertit une image PNG/JPG en tableau
 C RGB565 240x240. Il corrige l'orientation EXIF, recadre l'image au centre en
 format carre, redimensionne en 240x240, puis genere les valeurs RGB565.
 
-Pour remplacer directement le tableau affiche par `main.c` :
+Pour remplacer directement l'image de fond affichee par l'application :
 
 ```sh
-tools/generate_st7789_image.py photo.jpg --replace ST7789-STM32-master/ST7789/fonts.c --byteswap
+tools/generate_st7789_image.py photo.jpg --replace tools/StartImage.c --byteswap
 ```
 
 `--byteswap` est adapte au driver actuel, car `ST7789_DrawImage()` transmet le
@@ -272,13 +313,13 @@ les couleurs apparaissent inversees ou incoherentes sur l'ecran, refaire un
 essai sans cette option :
 
 ```sh
-tools/generate_st7789_image.py photo.jpg --replace ST7789-STM32-master/ST7789/fonts.c
+tools/generate_st7789_image.py photo.jpg --replace tools/StartImage.c
 ```
 
 Pour generer un fichier C separe sans modifier `fonts.c` :
 
 ```sh
-tools/generate_st7789_image.py photo.jpg -o image_240x240.c
+tools/generate_st7789_image.py photo.jpg -o StartImage.c
 ```
 
 ## Interruptions

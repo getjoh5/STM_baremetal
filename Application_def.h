@@ -10,13 +10,18 @@
 #ifndef APP_DEF_H
 #define APP_DEF_H
 
+
 //Message to Display
 //Error
+#define SIZE_ERROR_MESSAGE  100
 #define ERROR_000   "Error_000: Problème survenue Lors de l'installation des périphérique"
 #define ERROR_001   "Error_001: Un problème est survenue Merci de re-éssayer"
+#define ERROR_002   "Error_002: Un problème est survenue L'or de l'initialisation du temp"
+
 
 //Message
-#define BIENVENUE   "Bienvenue dans le Projet GWETH"
+#define SIZE_MESSAGE        100
+#define BIENVENUE   "Bienvenue dans \n le Projet GWETH"
 #define CHARGEMENT  "Chargement des ressources nécessaires ...."
 #define PATIENCE    "Veuillez patienter un instant"
 
