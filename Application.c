@@ -24,6 +24,21 @@ static void app_copy_string(char *dst, uint32_t dst_size, const char *src)
     dst[i] = '\0';
 }
 
+static char * IntToChar(int nombre, char * tmp){
+    uint8_t chiffre = 0;
+    int divisor = 1, i = 0;
+    while(nombre/divisor >= 10)divisor *= 10;
+
+    while(divisor > 0){
+        chiffre = nombre/divisor;
+        tmp[i++] = chiffre + 48;
+        nombre %= divisor;
+        divisor /= 10;
+    }
+    tmp[i]='%';
+    tmp[i+1]='\0';
+    return tmp;
+}
 
 /**
  * @brief Restore a rectangular area from the 240x240 background image.
@@ -91,16 +106,18 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
     app->Error[0] = '\0';
     app->rectPercentage = 0;
 
+    char count[50];
+
     app_copy_string(app->Message, SIZE_MESSAGE, BIENVENUE);
 
     if(timer_init_serv(&app->ApplicationTimer, Tim) == -1){
         app_copy_string(app->Error, SIZE_ERROR_MESSAGE, ERROR_002);
-        ST7789_WriteStringTransparent(20,20,app->Error,Font_11x18,WHITE);
+        ST7789_WriteStringTransparent(20,20,app->Error,Font_11x18,WHITE,StartImage);
         return -1;
     }
 
     app_copy_string(msg, SIZE_MESSAGE,"WELCOMES TO");
-    ST7789_WriteStringTransparent(70,180,msg,Font_11x18,WHITE);
+    ST7789_WriteStringTransparent(70,180,msg,Font_11x18,WHITE,StartImage);
     timer_delay_ms(1000);
 
     //clean msg
@@ -109,7 +126,7 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
 
     //New message
     app_copy_string(msg, SIZE_MESSAGE, "THE GWETH FAM'S");
-    ST7789_WriteStringTransparent(30,180,msg,Font_11x18,WHITE);    
+    ST7789_WriteStringTransparent(30,180,msg,Font_11x18,WHITE,StartImage);    
 
     //Draw the rectangle
     timer_delay_ms(1000);
@@ -121,6 +138,9 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
     ST7789_DrawRectangle(BAR_X, BAR_Y, BAR_X + BAR_W - 1, BAR_Y + BAR_H, BAR_BORDER);        timer_delay_ms(200);
     uint16_t previous_width = 0;
     //}
+
+    app_copy_string(msg, SIZE_MESSAGE, IntToChar(0,count));
+
     for (uint8_t percent = 0; percent <= 100; percent++) {
         uint16_t current_width = ((BAR_W - 2) * percent) / 100;
 
@@ -135,10 +155,19 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
 
             previous_width = current_width;
         }
+        //clean msg
+
+        tmpNumberOfChar = numberOfChar(msg);
+        restore_photo_area(100, 198, tmpNumberOfChar*11 ,18,StartImage);
+
+        app_copy_string(msg, SIZE_MESSAGE, IntToChar(percent,count));
+        ST7789_WriteStringTransparent(100,198,msg,Font_11x18,WHITE,StartImage);
+        
 
         timer_delay_ms(200);
     }
-
+    //Todo: try to implement feature that trnasform int to char
+    //next step
     return 0;
 
 }

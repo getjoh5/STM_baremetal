@@ -462,22 +462,23 @@ void ST7789_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t co
 	ST7789_UnSelect();
 }
 
-void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color)
+void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,const uint16_t img[240][240])
 {
 	uint32_t i, b, j;
 	ST7789_Select();
-	//ST7789_SetAddressWindow(x, y, x + font.width - 1, y + font.height - 1);
+	ST7789_SetAddressWindow(x, y, x + font.width - 1, y + font.height - 1);
 
 	for (i = 0; i < font.height; i++) {
 		b = font.data[(ch - 32) * font.height + i];
 		for (j = 0; j < font.width; j++) {
 			if ((b << j) & 0x8000) {
-				//uint8_t data[] = {color >> 8, color & 0xFF};
-				//ST7789_WriteData(data, sizeof(data));
-				ST7789_DrawPixel(x+j, y+i, color);
+				uint8_t data[] = {color >> 8, color & 0xFF};
+				ST7789_WriteData(data, sizeof(data));
+				//ST7789_DrawPixel(x+j, y+i, color);
 			}
 			else {
-				continue;
+				uint8_t data[] = {img[y + i][x + j] & 0xFF, img[y + i][x + j] >> 8};
+				ST7789_WriteData(data, sizeof(data));
 			}
 		}
 	}
@@ -493,7 +494,7 @@ void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, 
  * @param bgcolor -> background color of the string
  * @return  none
  */
-void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color)
+void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color,const uint16_t img[240][240])
 {
 	ST7789_Select();
 	while (*str) {
@@ -510,7 +511,7 @@ void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, Font
 				continue;
 			}
 		}
-		ST7789_WriteCharTransparent(x, y, *str, font, color);
+		ST7789_WriteCharTransparent(x, y, *str, font, color, img);
 		x += font.width;
 		str++;
 	}

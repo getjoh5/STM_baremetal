@@ -231,8 +231,8 @@ void ST7789_InvertColors(uint8_t invert);
 
 /* Text functions. */
 void ST7789_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor);
-void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color);
-void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color);
+void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,const uint16_t img[240][240]);
+void ST7789_WriteStringTransparent(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color,const uint16_t img[240][240]);
 void ST7789_WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor);
 
 /* Extented Graphical functions. */
