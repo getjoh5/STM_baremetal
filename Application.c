@@ -141,7 +141,7 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
 
     app_copy_string(msg, SIZE_MESSAGE, IntToChar(0,count));
 
-    for (uint8_t percent = 0; percent <= 100; percent++) {
+    for (uint8_t percent = 0; percent <= 100; ) {
         uint16_t current_width = ((BAR_W - 2) * percent) / 100;
 
         if (current_width > previous_width) {
@@ -163,6 +163,7 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
         app_copy_string(msg, SIZE_MESSAGE, IntToChar(percent,count));
         ST7789_WriteStringTransparent(100,198,msg,Font_11x18,WHITE,StartImage);
         
+        percent+=5;
 
         timer_delay_ms(200);
     }

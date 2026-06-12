@@ -561,7 +561,8 @@ void ST7789_WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, u
 void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
 	ST7789_Select();
-	uint8_t i;
+	//uint8_t i;
+	uint16_t buffer[240];
 
 	/* Check input parameters */
 	if (x >= ST7789_WIDTH ||
@@ -579,10 +580,19 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
 	}
 
 	/* Draw lines */
-	for (i = 0; i <= h; i++) {
-		/* Draw lines */
-		ST7789_DrawLine(x, y + i, x + w, y + i, color);
+	
+
+	ST7789_SetAddressWindow(x, y, x+w-1, h+y-1);
+	for(int j = 0; j<= (w-1);j++){
+		buffer[j] = (color>>8)|(color<<8);
 	}
+
+	for(int i = 0; i <= (h-1); i++){	
+		ST7789_WriteData((uint8_t *)buffer,2*w);
+	}
+
+
+
 	ST7789_UnSelect();
 }
 
