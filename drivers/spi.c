@@ -9,7 +9,7 @@ void spi_init(void){
 
     //clock baudrate: slow speed for display bring-up
     SPI1->CR1 &= ~SPI_CR1_BR;
-    SPI1->CR1 |= (0x1U<<SPI_CR1_BR_Pos);
+    //SPI1->CR1 |= (~(0x1U)<<SPI_CR1_BR_Pos);
 
     //configurarion CPOL CPHA
     SPI1->CR1 |= SPI_CR1_CPOL;

@@ -465,6 +465,7 @@ void ST7789_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t co
 void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color,const uint16_t img[240][240])
 {
 	uint32_t i, b, j;
+	uint16_t tmp[240];
 	ST7789_Select();
 	ST7789_SetAddressWindow(x, y, x + font.width - 1, y + font.height - 1);
 
@@ -472,16 +473,20 @@ void ST7789_WriteCharTransparent(uint16_t x, uint16_t y, char ch, FontDef font, 
 		b = font.data[(ch - 32) * font.height + i];
 		for (j = 0; j < font.width; j++) {
 			if ((b << j) & 0x8000) {
-				uint8_t data[] = {color >> 8, color & 0xFF};
-				ST7789_WriteData(data, sizeof(data));
+				//uint8_t data[] = {color >> 8, color & 0xFF};
+				//ST7789_WriteData(data, sizeof(data));
 				//ST7789_DrawPixel(x+j, y+i, color);
+				tmp[j] = color >> 8 | color << 8;
 			}
 			else {
-				uint8_t data[] = {img[y + i][x + j] & 0xFF, img[y + i][x + j] >> 8};
-				ST7789_WriteData(data, sizeof(data));
+				//uint8_t data[] = {img[y + i][x + j] & 0xFF, img[y + i][x + j] >> 8};
+				//ST7789_WriteData(data, sizeof(data));
+				tmp[j] = img[y + i][x + j];
 			}
 		}
+		ST7789_WriteData((uint8_t*)tmp, font.width*2);
 	}
+	
 	ST7789_UnSelect();
 }
 
