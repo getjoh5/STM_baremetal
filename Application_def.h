@@ -31,7 +31,12 @@
 #define STEP_INIT_DISPLAY_DELAY             2
 
 //Step Runing
+#define INIT_RUN                                0
+#define EXEC_RUN                                1
 //CG TODO
+
+#define TRUE                                1U
+#define FALSE                               0U
 
 
 #endif

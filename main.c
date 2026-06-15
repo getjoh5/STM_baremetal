@@ -95,7 +95,7 @@ int main()
     debug_blink_user_led(3);
 
     while(1){
-        
+        App_run(&Application);
         
     }
    return 0;

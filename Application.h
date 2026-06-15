@@ -24,14 +24,29 @@
 #define BAR_BORDER WHITE
 #define BAR_FILL   WHITE
 
+typedef union{
+    uint32_t all;
+    struct BIT_T
+    {
+        /* data */
+        uint32_t init_done:1;
+        uint32_t reserved;
+    } bit;
+    
+}FLAG_T;
+
+typedef struct BIT_T BIT_T;
+
 typedef struct 
 {
     uint8_t StepInit;           //!< step to do in initialisation
     uint8_t StepRun;            //!< step to do while the running is start
     timer_t ApplicationTimer;   //!< timer service for application 
+    timer_t TimeractualHourUpdate;
     char    Message[100];
     char    Error[100];
     uint8_t rectPercentage;
+    FLAG_T  flag;
     //TODO: CG
     //Prevoir peut-être un objet pour mes rectangle pour le chargement au demarrage
 }Application_t;
@@ -48,12 +63,12 @@ int App_init(Application_t * app, volatile uint32_t * Tim );
 /**
  * @brief Start the application after initialization.
  */
-void App_start(void);
+void App_start(Application_t * app);
 
 /**
  * @brief Execute the application runtime state machine.
  */
-void App_run(void);
+void App_run(Application_t * app);
 
 
 #endif /* APPLICATION_H */
