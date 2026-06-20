@@ -3,7 +3,7 @@
  * @brief Interface du driver bas niveau TIM2.
  *
  * Ce driver configure TIM2 comme compteur libre 32 bits. Avec une horloge
- * timer a 4 MHz et un prescaler a 3999, le compteur avance a 1 kHz :
+ * timer a 32 MHz et un prescaler a 31999, le compteur avance a 1 kHz :
  * un tick TIM2 correspond donc a 1 ms.
  */
 
