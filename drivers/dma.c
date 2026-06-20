@@ -66,7 +66,7 @@ void dma_spi_tx_start_u8(const uint8_t *data, uint16_t size){
 
     DMA1_Channel3->CCR      &= ~DMA_CCR_EN; //Disable Channel3 before reconfiguration.
 
-    timer_delay_ms(50);
+    //timer_delay_ms(50);
 
     DMA1->IFCR = DMA_IFCR_CGIF3
                | DMA_IFCR_CTCIF3

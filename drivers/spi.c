@@ -41,21 +41,17 @@ void spi_init(void){
 
     //Use the DMA
     //SPI1->CR2 |= SPI_CR2_TXDMAEN; //enable transmission by DMA
-
-#ifndef DMA_MODE
+    dma_spi_tx_init();
     //enable SPI 
     SPI1->CR1 |= SPI_CR1_SPE;
-#endif
 
-    dma_spi_tx_init();
+    
 }
 
 void spi_write(const uint8_t *data, size_t len){
     if(SPI1 == NULL || data == NULL)return;
 
-#ifdef DMA_MODE
-    SPI1->CR1 |= SPI_CR1_SPE;
-#endif
+
 
     while(len > 0U){
         while((SPI1->SR & SPI_SR_TXE) == 0U){
@@ -69,19 +65,17 @@ void spi_write(const uint8_t *data, size_t len){
     while((SPI1->SR & SPI_SR_BSY) != 0U){
     }
 
-#ifdef DMA_MODE
-    SPI1->CR1 &= ~SPI_CR1_SPE;
-#endif
 }
 
 void spi_write_dma(const uint8_t *data, size_t len){
 
     if (data == NULL || len == 0U) return;
     dma_spi_tx_start_u8(data, len);
-    SPI1->CR2 |= SPI_CR2_TXDMAEN;
-    SPI1->CR1 |= SPI_CR1_SPE;
-
     DMA1_Channel3->CCR |= DMA_CCR_EN;
+
+    SPI1->CR2 |= SPI_CR2_TXDMAEN;
+
+    
 
     while ((DMA1->ISR & DMA_ISR_TCIF3) == 0U) {
     }

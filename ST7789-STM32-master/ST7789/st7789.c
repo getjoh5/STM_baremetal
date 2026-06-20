@@ -4,7 +4,7 @@
 #define USE_DMA
 
 #ifdef USE_DMA
-static const uint16_t DMA_MIN_SIZE = 16U;
+static const uint16_t DMA_MIN_SIZE = 128U;
 /* DMA uses a small line buffer instead of a full framebuffer.
  * HOR_LEN is the number of display lines sent per DMA chunk.
  */
