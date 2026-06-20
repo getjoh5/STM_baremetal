@@ -103,7 +103,8 @@ cont
 - `main.c` : point d'entrée applicatif.
 - `drivers/gpio.c/.h` : driver GPIO bas niveau pour les LED et les lignes de controle SPI.
 - `drivers/Timer.c/.h` : driver TIM2 et SysTick bas niveau, avec une resolution de 1 ms.
-- `drivers/spi.c/.h` : debut du driver SPI1 bas niveau.
+- `drivers/spi.c/.h` : driver SPI1 bas niveau, avec transmission bloquante et transmission DMA.
+- `drivers/dma.c/.h` : configuration de DMA1 Channel3 pour les transferts SPI1_TX en 8 bits.
 - `firmware/led_service.c/.h` : couche applicative pour le service LED.
 - `firmware/timer_service.c/.h` : service applicatif de temporisation non bloquante base sur TIM2.
 - `Application.c/.h` : couche applicative principale, ecran de demarrage, messages et barre de chargement.
@@ -120,6 +121,7 @@ Le `Makefile` compile actuellement :
 - `main.c`
 - `drivers/gpio.c`
 - `drivers/Timer.c`
+- `drivers/dma.c`
 - `drivers/spi.c`
 - `firmware/led_service.c`
 - `firmware/timer_service.c`
@@ -208,6 +210,35 @@ comparaison utilise une soustraction unsigned :
 
 Cette forme reste correcte même lorsque le compteur 32 bits déborde et revient
 à zéro.
+
+## SPI1, DMA et ST7789
+
+Le driver SPI1 fonctionne en trames de 8 bits. Les commandes ST7789 et les
+petits buffers sont envoyes avec `spi_write()`, en mode bloquant classique.
+Les gros buffers de donnees passent par `spi_write_dma()`, qui configure le
+transfert DMA, active `SPI_CR2_TXDMAEN`, attend le flag de fin DMA puis attend
+que le SPI ait termine physiquement l'envoi.
+
+La configuration DMA est initialisee une fois depuis `spi_init()` :
+
+- `DMA1_Channel3` est utilise pour `SPI1_TX`;
+- la direction est memoire vers peripherique;
+- l'incrementation memoire est activee;
+- `PSIZE` et `MSIZE` restent en 8 bits, alignes avec la taille de trame SPI;
+- `dma_spi_tx_start_u8()` recharge seulement l'adresse source et la taille du
+  prochain transfert.
+
+Dans le driver ST7789, `ST7789_WriteData()` choisit automatiquement entre SPI
+bloquant et SPI DMA selon la taille du buffer. Les transferts de moins de
+`DMA_MIN_SIZE` octets restent en SPI bloquant, afin d'eviter le cout de
+preparation DMA pour quelques octets de commande ou de parametres.
+
+Pour le remplissage plein ecran, le projet n'utilise pas de framebuffer complet
+240x240. Il utilise un petit buffer `disp_buf` de `ST7789_WIDTH * HOR_LEN`
+pixels. Avec `HOR_LEN = 5`, cela represente 5 lignes de l'ecran, soit 2400
+octets pour un ecran 240x240 en RGB565. Le buffer est rempli avec la couleur
+demandee, puis envoye plusieurs fois par DMA jusqu'a couvrir toute la hauteur
+de l'ecran.
 
 ## Couche Application
 

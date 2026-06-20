@@ -8,15 +8,24 @@
  * @date 2026-04-14
  */
 #ifndef DMA_H
-#define DMA_A
+#define DMA_H
 #include <stdint.h>
 
-#define CHUNK_SIZE 512
-uint16_t buffer[CHUNK_SIZE];
 
+/**
+ * @brief Configure DMA1 Channel3 pour les transmissions SPI1_TX en 8 bits.
+ *
+ * Cette initialisation se fait une seule fois avant les transferts.
+ */
+void dma_spi_tx_init(void);
 
-void dam_config();
-
+/**
+ * @brief Prepare un transfert DMA memoire vers SPI1->DR sans le demarrer.
+ *
+ * @param data Buffer source 8 bits.
+ * @param size Nombre d'octets a transmettre.
+ */
+void dma_spi_tx_start_u8(const uint8_t *data, uint16_t size);
 
 
 #endif

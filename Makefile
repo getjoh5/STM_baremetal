@@ -24,6 +24,7 @@ C_SOURCES = \
 	main.c \
 	drivers/gpio.c \
 	drivers/Timer.c \
+	drivers/dma.c \
 	drivers/spi.c \
 	ST7789-STM32-master/ST7789/st7789.c \
 	ST7789-STM32-master/ST7789/fonts.c \

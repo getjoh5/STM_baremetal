@@ -1,15 +1,14 @@
 #include "st7789.h"
 #include "gpio.h"
 
+#define USE_DMA
+
 #ifdef USE_DMA
-#include <string.h>
-uint16_t DMA_MIN_SIZE = 16;
-/* If you're using DMA, then u need a "framebuffer" to store datas to be displayed.
- * If your MCU don't have enough RAM, please avoid using DMA(or set 5 to 1).
- * And if your MCU have enough RAM(even larger than full-frame size),
- * Then you can specify the framebuffer size to the full resolution below.
+static const uint16_t DMA_MIN_SIZE = 16U;
+/* DMA uses a small line buffer instead of a full framebuffer.
+ * HOR_LEN is the number of display lines sent per DMA chunk.
  */
- #define HOR_LEN 	5	//	Also mind the resolution of your screen!
+#define HOR_LEN 5
 uint16_t disp_buf[ST7789_WIDTH * HOR_LEN];
 #endif
 
@@ -42,9 +41,9 @@ static void ST7789_WriteData(uint8_t *buff, size_t buff_size)
 	while (buff_size > 0) {
 		uint16_t chunk_size = buff_size > 65535 ? 65535 : buff_size;
 		#ifdef USE_DMA
-			if (DMA_MIN_SIZE <= buff_size)
+			if (chunk_size >= DMA_MIN_SIZE)
 			{
-				spi_write(buff, chunk_size);
+				spi_write_dma(buff, chunk_size);
 			}
 			else
 				spi_write(buff, chunk_size);
@@ -133,7 +132,9 @@ static void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint1
 void ST7789_Init(void)
 {
 	#ifdef USE_DMA
-		memset(disp_buf, 0, sizeof(disp_buf));
+		for (uint16_t p = 0; p < ST7789_WIDTH * HOR_LEN; p++) {
+			disp_buf[p] = 0U;
+		}
 	#endif
 	timer_delay_ms(10);
     ST7789_RST_Clr();
@@ -204,10 +205,13 @@ void ST7789_Fill_Color(uint16_t color)
 	ST7789_Select();
 
 	#ifdef USE_DMA
+		uint16_t dma_color = (color >> 8) | (color << 8);
+		for (uint16_t p = 0; p < ST7789_WIDTH * HOR_LEN; p++) {
+    		disp_buf[p] = dma_color;
+		}
 		for (i = 0; i < ST7789_HEIGHT / HOR_LEN; i++)
 		{
-			memset(disp_buf, color, sizeof(disp_buf));
-			ST7789_WriteData(disp_buf, sizeof(disp_buf));
+			ST7789_WriteData((uint8_t *)disp_buf, sizeof(disp_buf));
 		}
 	#else
 		uint16_t j;
