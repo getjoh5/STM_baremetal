@@ -24,12 +24,20 @@
 #define BAR_BORDER WHITE
 #define BAR_FILL   WHITE
 
+typedef enum bool_p
+{
+    True = 1,
+    False = 0
+}bool_p;
+
+
 typedef union{
     uint32_t all;
     struct BIT_T
     {
         /* data */
         uint32_t init_done:1;
+        uint32_t init_time_done:1;
         uint32_t reserved;
     } bit;
     

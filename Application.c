@@ -5,6 +5,9 @@ uint32_t HOUR = 0;
 uint32_t MIN  = 0;
 uint32_t SEC  = 0;
 
+static void restore_photo_area(uint16_t x, uint16_t y, uint16_t w, uint16_t h,const uint16_t image[240][240]);
+
+
 /**
  * @brief Copy a C string into a fixed-size destination buffer.
  *
@@ -29,6 +32,17 @@ static void app_copy_string(char *dst, uint32_t dst_size, const char *src)
     dst[i] = '\0';
 }
 
+/**
+ * @brief Convert an integer to a null-terminated decimal string.
+ *
+ * The project is linked without the standard library, so this helper replaces
+ * formatting calls such as sprintf for small display strings.
+ *
+ * @param nombre Integer value to convert.
+ * @param tmp Destination buffer.
+ * @param separator Optional character appended after the number, or 0 for none.
+ * @return Number of characters written including the null terminator.
+ */
 static uint8_t IntToChar(int nombre, char * tmp,char separator){
     uint8_t chiffre = 0;
     uint8_t counter = 0;
@@ -42,18 +56,37 @@ static uint8_t IntToChar(int nombre, char * tmp,char separator){
         divisor /= 10;
         counter++;
     }
-    tmp[i]=separator;
-    counter++;
-    tmp[i+1]='\0';
+    if(separator != 0){
+        tmp[i]=separator;
+        counter++;
+        tmp[i+1]='\0';
+    }else{
+        tmp[i]='\0';
+        counter++;
+    }
     return counter;
 }
 
+/**
+ * @brief Update the software clock and refresh the displayed time.
+ *
+ * The function uses TimeractualHourUpdate as a non-blocking 1 second timer.
+ * Hours and minutes are drawn only when their value changes, while the colon is
+ * toggled every second to keep the clock visibly alive.
+ *
+ * @param app Application object that owns the timer and display flags.
+ */
 static void Udapte_hour(Application_t * app){
     static uint8_t stepHour = 0;
     static uint8_t secIncrement = FALSE;
+    static uint8_t toggle = FALSE;
+
     uint8_t j = 0;
-    uint8_t update = FALSE;
-    char msg[4];
+    uint8_t update_SEC = FALSE;
+    uint8_t update_MIN = FALSE;
+    uint8_t update_HOUR = FALSE;
+
+    char msg[3];
     switch (stepHour)
     {
     case 0:
@@ -76,37 +109,63 @@ static void Udapte_hour(Application_t * app){
     //incrementation des secondes
     if(secIncrement == TRUE){
         SEC++;
-        update = TRUE;
+        update_SEC = TRUE;
+        toggle = 0xFF ^ toggle;
     }
 
     //incrementation des minutes
     if(SEC == 60){
         MIN ++;
         SEC = 0;
+        update_MIN = TRUE;
     }
 
     //incremention des heures 
     if(MIN == 60){
         HOUR++;
         MIN = 0;
+        update_HOUR = TRUE;
     }
 
     if(HOUR == 24){
         HOUR = 0;
     }
     
-    for(int i = 0; i < 3;i++){
-        int ret =0;
+    //ST7789_WriteStringTransparent(100 + j,198,"00:00",Font_16x26,WHITE,image_240x240);
+
+    for(int i = 0; (i < PART_OF_TIME)&&(update_SEC);i++){
+        char msgtmp[3];
         if(i == 0){
-            ret = IntToChar(HOUR,msg,':');
+            if(app->flag.bit.init_time_done == 1 && update_HOUR == FALSE )continue;
+            IntToChar(HOUR,msg,0);
+            msgtmp[0]= (HOUR/10 > 0)? msg[0]:'0';
+            msgtmp[1]= (HOUR/10 > 0)? msg[1]:msg[0];
+            msgtmp[2]= '\0';
+            ST7789_WriteStringTransparent(X_REF_POS_TIME +j,Y_REF_POS_TIME,msgtmp,Font_16x26,WHITE,image_240x240);
         }
-        if(i == 1)ret = IntToChar(MIN,msg,':');
-        if(i == 2)ret = IntToChar(SEC,msg,' ');
-        if(update == TRUE){
-            ST7789_WriteStringTransparent(100 + j,198,msg,Font_16x26,WHITE,image_240x240);
+        if(i == 1){
+            j += SPACE_BETWN_PART_OF_TIME + WIDTH_FONT*2;
+            if(toggle)ST7789_WriteStringTransparent(X_REF_POS_TIME + j,Y_REF_POS_TIME,":",Font_16x26,WHITE,image_240x240);
+            else restore_photo_area(X_REF_POS_TIME + j,Y_REF_POS_TIME,WIDTH_FONT,HEIGHT_FONT,image_240x240);
         }
-        j += i + 16*ret;
+        if(i == 2){
+            if(app->flag.bit.init_time_done == 1 && update_MIN == FALSE )continue;
+            IntToChar(MIN,msg,0);
+            msgtmp[0]= (MIN/10 > 0)? msg[0]:'0';
+            msgtmp[1]= (MIN/10 > 0)? msg[1]:msg[0];
+            msgtmp[2]= '\0';
+            j += SPACE_BETWN_PART_OF_TIME + WIDTH_FONT;
+            ST7789_WriteStringTransparent(X_REF_POS_TIME + j,Y_REF_POS_TIME,msgtmp,Font_16x26,WHITE,image_240x240);
+        }
+
+
     }
+
+    if(update_SEC)app->flag.bit.init_time_done = 1;
+
+
+
+
     
 
 
@@ -181,6 +240,8 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
     app->rectPercentage = 0;
 
     char count[50];
+    app->StepRun = 0;
+    app->flag.all = 0;
 
     app_copy_string(app->Message, SIZE_MESSAGE, BIENVENUE);
 
@@ -252,6 +313,14 @@ int App_init(Application_t * app, volatile uint32_t* Tim ){
 }
 
 
+/**
+ * @brief Execute one iteration of the application state machine.
+ *
+ * INIT_RUN draws the main background once, then EXEC_RUN keeps the displayed
+ * clock updated without blocking the main loop.
+ *
+ * @param app Application object to run.
+ */
 void App_run(Application_t * app){
     if(app == NULL)return;
 
@@ -273,6 +342,14 @@ void App_run(Application_t * app){
 
 }
 
+/**
+ * @brief Draw the main application screen after the startup sequence.
+ *
+ * The function displays the 240x240 background image and marks the application
+ * as initialized so App_run can enter the execution state.
+ *
+ * @param app Application object to start.
+ */
 void App_start(Application_t * app){
     if(app == NULL)return;
     ST7789_DrawImage(0,0,240,240,&image_240x240[0][0]);

@@ -262,6 +262,21 @@ utilise `restore_photo_area()`. Cette fonction restaure une zone depuis
 `StartImage` ligne par ligne, car une sous-zone d'une image 240x240 n'est pas
 stockee comme un bloc compact en memoire.
 
+Apres l'initialisation, `App_run()` pilote une petite machine d'etats :
+
+- `INIT_RUN` appelle `App_start()` pour afficher l'image principale
+  `image_240x240`;
+- `EXEC_RUN` appelle la mise a jour de l'heure a chaque passage dans la boucle
+  principale, sans bloquer le processeur.
+
+L'horloge logicielle utilise `TimeractualHourUpdate` avec une periode de
+`1000` ticks. A chaque seconde, les secondes internes sont incrementees et le
+separateur `:` est affiche ou efface pour produire un clignotement. Les minutes
+ne sont redessinees que lorsqu'elles changent, et les heures seulement lors du
+passage a l'heure suivante. Cette strategie limite les ecritures vers le
+ST7789, ce qui reduit le trafic SPI par rapport a un redessin complet de
+`HH:MM` toutes les secondes.
+
 La barre de chargement utilise les constantes definies dans `Application.h` :
 
 ```c

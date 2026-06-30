@@ -39,4 +39,13 @@
 #define FALSE                               0U
 
 
+//Macro for update time
+#define X_REF_POS_TIME                              100U
+#define Y_REF_POS_TIME                              198U
+#define PART_OF_TIME                                3U
+#define WIDTH_FONT                                  16U
+#define HEIGHT_FONT                                 26U
+#define SPACE_BETWN_PART_OF_TIME                    10U
+
+
 #endif
